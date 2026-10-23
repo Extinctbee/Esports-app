@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Collegiate Esports Hub</title>
+</head>
+<body>
+    <h1>Collegiate Esports Hub</h1>
+
+    <!-- Test Form to Route to First University Profile in DB -->
+    <form action="{{ url_for('university', uID=1 )}}" method="GET">
+        <button type="submit">View Test University Profile</button>
+    </form>
+
+    <h2>MYSQL Database</h2>
+    
+    <!-- Test Script To Check Database Connection -->
+    <h3>Tables in the Database:</h3>
+    <ul>
+        {% for table in tableNames %}
+        <li>{{ table }}</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>
