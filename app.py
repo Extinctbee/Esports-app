@@ -12,18 +12,20 @@ def home():
 
     try:
         with connection.cursor() as cursor:
+
+            
             # Execute a simple query to check the connection
-            cursor.execute("SHOW TABLES;")
+            cursor.execute("Select * from University")
             rows = cursor.fetchall()
 
-        tableNames = [next(iter(row.values())) for row in rows]
+        universites = rows
     finally:
         connection.close()
 
-    return render_template("index.html", tableNames=tableNames)
+    return render_template("index.html", universites=universites)
 
 # Route For University Proifles.
-@app.route("/University/<int:uID>")
+@app.route("/university/<int:uID>")
 def university(uID):
 
     # Connect to the database
@@ -44,3 +46,8 @@ def university(uID):
         abort(404, description= (f"University with ID '{uID}' not found.") ) #Display a 404 error if the university data entity was not found
 
     return render_template("university.html", currentUniversity=university)
+
+# Route for the Join Hub page
+@app.route("/join")
+def join():
+    return render_template("join.html")
