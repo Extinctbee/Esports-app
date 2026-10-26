@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}University Profile{% endblock %}
+
+{% block content %}
+
+<!-- University Profile with passed ID => {{ uID }} -->
+<!-- currentUniversity is the fetched university data containing all University attributes -->
+    
+<div class="university-profile"> 
+
+    <!-- University Profile Header -->
+    <h2>University Profile: {{ currentUniversity.uName }}</h2>
+    
+    <!-- University Profile Details -->
+    <h3>State:{{ currentUniversity.uState }} </h3>
+    <h3>City: {{ currentUniversity.uCity }}</h3>
+</div>
+{% endblock %}

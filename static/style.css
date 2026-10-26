@@ -1,0 +1,23 @@
+.site-header {
+    background-color: rgb(27, 30, 32);
+    box-sizing: border-box;
+    color: white;
+    padding: 1px 16px;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.site-footer {
+    background-color: rgb(27, 30, 32);
+    box-sizing: border-box;
+    color: white;
+    padding: 1px 16px;
+    margin-top: 16px;
+    width: 100%;
+}
+
+.default-site-body{
+    background-color: rgb(35, 43, 49);
+    color: white;
+    padding: 8px;
+}

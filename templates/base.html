@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Collegiate Esports Hub{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="default-site-body">
+
+    <!-- Site Header -->
+    <header class="site-header">
+        <h1>Collegiate Esports Hub</h1>
+    </header>
+    <!-- End of Site Header -->
+    
+    <!-- Main Content -->
+    {% block content %}
+    <!-- Block content allows child templates to override this section with their own content -->
+    {% endblock %}
+    <!-- End of Main Content -->
+
+    <!-- Site Footer -->
+    <footer class="site-footer">
+        <p>&copy; 2026 Collegiate Esports Hub. All rights reserved.</p>
+    </footer>
+    <!-- End of Site Footer -->
+</body>
+</html>
