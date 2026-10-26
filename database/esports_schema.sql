@@ -1,3 +1,8 @@
+-- 01_schema.sql
+-- Destructive INITIAL SETUP / RESET only: drops the database and recreates all 14 tables.
+-- All example data is intentionally moved into 02_seed_cusa_demo.sql.
+-- DO NOT execute this on an existing database you intend to preserve.
+
 # Drop existing db
 DROP DATABASE IF EXISTS EsportsManagementDB;
 # Create and use
@@ -231,41 +236,3 @@ uarCity varchar(100),
 uarRequestDate datetime DEFAULT CURRENT_TIMESTAMP,
 uarStatus ENUM('Pending', 'Approved', 'Denied') DEFAULT 'Pending'
 );
-
-# dummy entry for test. Remove later
-insert into University(uName, uState, uCity) values('Sam Houston State University', 'Texas', 'Huntsville');	#university dummy Tests
-insert into GameTitle(gtName, gtGenre) values('Valorant', 'Tactical Shooter');
-insert into Team(tName, uID, gtID, tSkillLevel) values('SHSU Orange', 1, 1, 'Varsity');
- 
-insert into AccountUser(auFirstName, auLastName, auEmail, auHashPass)
-values ('Sam', 'Bearkat', 'sam@shsu.edu', 'hash1'),
-       ('Kat', 'Player', 'kat@shsu.edu', 'hash2');
-insert into StaffMember(auID, uID, staffRole) values(1, 1, 'Admin');
-insert into TeamMember(auID, gamerTag, bio, major) values(2, 'KatAttack', 'Duelist main', 'Computer Science');
-insert into GamerConnections(auID, discordUser, riotGamesUser) values(2, 'kat#0001', 'KatAttack#NA1');
- 
-insert into TeamSeason(tID, sTitle, sFormat, sStartDate, sEndDate) values(1, 'Fall 2026', 'Round Robin', '2026-09-01', '2026-12-15');
-insert into TeamEvent(sID, teTitle, teEventType, teStartDate, teLocation) values(1, 'Opening Match', 'Match', '2026-09-10 18:00:00', 'Online');
-insert into TeamMembership(auID, sID, tmsTeamRole, tmsJoinDate) values(2, 1, 'Duelist', '2026-08-25');
-insert into UniversityEvent(uID, ueTitle, ueEventType, ueStartDate, ueLocation) values(1, 'Esports Showcase', 'Showcase', '2026-10-30 17:00:00', 'Student Center');
-insert into UniversityUpdate(uID, staffAuID, uuTitle, uuInfo) values(1, 1, 'Tryouts Open', 'Varsity tryouts start next week.');
-insert into UniversityNewUserRequest(uID, unurFirstName, unurLastName, unurEmail, unurHashPass)
-values(1, 'New', 'Student', 'new@shsu.edu', 'hash3');
-insert into UniversityProfileAccountRequest(uarFirstName, uarLastName, uarEmail, uarHashPass, uarUniversityName, uarState, uarCity)
-values('Jane', 'Doe', 'jane@utexas.edu', 'hash4', 'University of Texas', 'Texas', 'Austin');
-
-
-select * from University;
-select * from GameTitle;
-select * from Team;
-select * from AccountUser;
-select * from StaffMember;
-select * from TeamMember;
-select * from GamerConnections;
-select * from TeamSeason;
-select * from TeamEvent;
-select * from TeamMembership;
-select * from UniversityEvent;
-select * from UniversityUpdate;
-select * from UniversityNewUserRequest;
-select * from UniversityProfileAccountRequest;
