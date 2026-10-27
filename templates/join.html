@@ -1,50 +1,41 @@
 
-
 {% extends "base.html" %}
 
 {% block title %}Join - University Profile Request{% endblock %}
 
 {% block content %}
-<main class="container py-5">
-	<div class="row justify-content-center">
-		<div class="col-12 col-lg-8">
-			<h1>Request a University Profile</h1>
-			<p>Send your information to our development team to request a university profile for verification.</p>
+<div class="page-content">
+    <div class="eyebrow">For programs</div>
+    <h1>Request a University Profile</h1>
+    <p>Send your information to our development team to request a university profile for verification.</p>
 
-			<form method="post">
-				<div class="mb-3">
-					<label for="first_name" class="form-label">First name</label>
-					<input type="text" class="form-control" id="first_name" name="first_name" autocomplete="given-name" required>
-				</div>
+    <form method="post" class="form">
+        <label>
+            <span>First name</span>
+            <input type="text" id="first_name" name="first_name" autocomplete="given-name" required>
+        </label>
+        <label>
+            <span>Last name</span>
+            <input type="text" id="last_name" name="last_name" autocomplete="family-name" required>
+        </label>
+        <label>
+            <span>Email address</span>
+            <input type="email" id="email" name="email" autocomplete="email" required>
+        </label>
+        <label>
+            <span>University name</span>
+            <input type="text" id="university_name" name="university_name" autocomplete="organization" required>
+        </label>
+        <label>
+            <span>University state</span>
+            <input type="text" id="university_state" name="university_state" autocomplete="address-level1" required>
+        </label>
+        <label>
+            <span>University city</span>
+            <input type="text" id="university_city" name="university_city" autocomplete="address-level2" required>
+        </label>
 
-				<div class="mb-3">
-					<label for="last_name" class="form-label">Last name</label>
-					<input type="text" class="form-control" id="last_name" name="last_name" autocomplete="family-name" required>
-				</div>
-
-				<div class="mb-3">
-					<label for="email" class="form-label">Email address</label>
-					<input type="email" class="form-control" id="email" name="email" autocomplete="email" required>
-				</div>
-
-				<div class="mb-3">
-					<label for="university_name" class="form-label">University name</label>
-					<input type="text" class="form-control" id="university_name" name="university_name" autocomplete="organization" required>
-				</div>
-
-				<div class="mb-3">
-					<label for="university_state" class="form-label">University state</label>
-					<input type="text" class="form-control" id="university_state" name="university_state" autocomplete="address-level1" required>
-				</div>
-
-				<div class="mb-3">
-					<label for="university_city" class="form-label">University city</label>
-					<input type="text" class="form-control" id="university_city" name="university_city" autocomplete="address-level2" required>
-				</div>
-
-				<button type="submit" class="btn btn-primary">Submit request</button>
-			</form>
-		</div>
-	</div>
-</main>
+        <div><button type="submit" class="button button-primary">Submit request</button></div>
+    </form>
+</div>
 {% endblock %}

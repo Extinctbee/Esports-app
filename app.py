@@ -70,3 +70,9 @@ def post_update():
         connection.close()
 
     return "Update posted successfully."
+
+#Keep below all routes for the main application entry point
+#Alternative to running app through CLI command in terminal: python -m flask --app app run --debug
+if __name__ == "__main__":
+    app.run(debug=True)
+
