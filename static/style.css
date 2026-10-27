@@ -1,23 +1,120 @@
-.site-header {
-    background-color: rgb(27, 30, 32);
-    box-sizing: border-box;
-    color: white;
-    padding: 1px 16px;
-    margin-bottom: 16px;
-    width: 100%;
+/* ===== Collegiate Esports Hub — ported from Figma Make styles.css ===== */
+:root {
+  --orange: #f36f21;
+  --orange-soft: #ff8c46;
+  --ink: #141413;
+  --ink-2: #1c1c1a;
+  --line: #e6e3dd;
+  --paper: #f5f3ee;
+  --white: #ffffff;
+  --muted: #74736e;
+  font-family: "Inter", sans-serif;
+  color: var(--ink);
+  background: var(--paper);
 }
 
-.site-footer {
-    background-color: rgb(27, 30, 32);
-    box-sizing: border-box;
-    color: white;
-    padding: 1px 16px;
-    margin-top: 16px;
-    width: 100%;
-}
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--ink); }
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
 
-.default-site-body{
-    background-color: rgb(35, 43, 49);
-    color: white;
-    padding: 8px;
+/* ---------- Buttons ---------- */
+.button { height: 40px; border-radius: 5px; padding: 0 16px; border: 1px solid transparent; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 700; text-decoration: none; transition: .2s ease; }
+.button-primary { color: white; background: var(--orange); box-shadow: 0 4px 12px #f36f2130; }
+.button-primary:hover { filter: brightness(.92); transform: translateY(-1px); }
+.button-secondary { background: white; border-color: #d7d4cd; color: #353430; box-shadow: 0 1px 2px #00000008; }
+.button-secondary:hover { border-color: #aaa69e; }
+
+/* ---------- Landing shell ---------- */
+.landing { min-height: 100vh; background: var(--ink); color: white; display: flex; flex-direction: column; }
+.landing > main { flex: 1; }
+.landing-nav { height: 82px; padding: 0 5vw; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #ffffff1a; background: #141413ed; position: relative; z-index: 2; }
+.hub-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: white; }
+.hub-mark { width: 38px; height: 38px; display: grid; place-items: center; background: var(--orange); border-radius: 5px; transform: skew(-7deg); font: 800 25px "Barlow Condensed"; }
+.hub-brand > div { display: grid; }
+.hub-brand strong { font: 800 16px/1 "Barlow Condensed"; letter-spacing: .1em; }
+.hub-brand small { color: #8e8e88; font-size: 8px; font-weight: 800; letter-spacing: .24em; margin-top: 5px; }
+.landing-nav-actions { display: flex; align-items: center; gap: 24px; }
+.landing-link { border: 0; background: transparent; color: #b8b7b2; font-size: 11px; font-weight: 700; text-decoration: none; }
+.landing-link:hover { color: white; }
+
+/* ---------- Hero ---------- */
+.landing-main { min-height: calc(100vh - 82px); position: relative; overflow: hidden; display: flex; align-items: center; padding: 58px 7vw 110px; background: radial-gradient(circle at 78% 35%, #4a2570 0%, #1d1230 45%, var(--ink) 80%); }
+.landing-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: grayscale(.15) saturate(.65) contrast(1.15); opacity: .55; }
+.landing-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, #11110ffd 0%, #11110fe8 42%, #11110f6b 75%, #11110f6e), linear-gradient(0deg, #11110fd9, transparent 65%); }
+.landing-copy { width: min(730px, 100%); position: relative; z-index: 1; }
+.landing-kicker { color: #ff9b5e; display: flex; align-items: center; gap: 10px; font-size: 9px; font-weight: 800; letter-spacing: .2em; }
+.landing-kicker span { width: 28px; height: 2px; background: var(--orange); }
+.landing-copy h1 { font: 800 clamp(55px, 7vw, 94px)/.82 "Barlow Condensed"; letter-spacing: -.02em; margin: 24px 0 20px; text-transform: uppercase; }
+.landing-copy h1 em { color: var(--orange); font-style: normal; }
+.landing-copy > p { max-width: 570px; color: #aaa9a4; font-size: 14px; line-height: 1.7; margin: 0 0 30px; }
+
+/* ---------- University search ---------- */
+.university-search { width: min(610px, 100%); background: white; color: var(--ink); border-radius: 9px; box-shadow: 0 20px 70px #0008; overflow: hidden; }
+.search-input-wrap { height: 62px; display: flex; align-items: center; gap: 12px; padding: 0 19px; border-bottom: 1px solid var(--line); color: var(--orange); }
+.search-input-wrap input { flex: 1; height: 100%; border: 0; outline: 0; color: var(--ink); font-size: 13px; background: transparent; }
+.search-input-wrap input::placeholder { color: #aaa79f; }
+.search-results { max-height: 246px; overflow: auto; padding: 8px; }
+.search-results-label { padding: 8px 10px 6px; color: #a19e97; font-size: 7px; font-weight: 800; letter-spacing: .15em; }
+.school-result { width: 100%; border: 0; background: transparent; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 10px; border-radius: 6px; text-align: left; color: var(--ink); text-decoration: none; }
+.school-result:hover { background: #f4f1eb; }
+.school-result:hover > svg { color: var(--orange); transform: translateX(2px); }
+.school-result-mark { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 5px; background: var(--ink); color: white; font: 800 13px "Barlow Condensed"; }
+.school-result:nth-of-type(2) .school-result-mark { background: var(--orange); }
+.school-result > span:nth-child(2) { display: grid; gap: 3px; }
+.school-result strong { font: 700 13px "Barlow Condensed"; }
+.school-result small { color: #8d8a83; font-size: 8px; }
+.school-result > svg { color: #aaa79f; transition: .2s ease; }
+.no-results { padding: 26px 12px; color: #8d8a83; font-size: 11px; text-align: center; display: none; }
+
+/* ---------- "Don't see your program" ---------- */
+.program-cta { min-height: 310px; padding: 68px 7vw; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 30px; background: #1b1b19; border-top: 1px solid #ffffff12; border-bottom: 1px solid #ffffff12; }
+.program-cta-mark { width: 74px; height: 74px; display: grid; place-items: center; color: var(--orange); background: #252522; border: 1px solid #373733; border-radius: 8px; }
+.program-cta-copy { max-width: 650px; }
+.eyebrow { color: var(--orange); font-size: 10px; line-height: 1.2; letter-spacing: .18em; font-weight: 800; text-transform: uppercase; }
+.program-cta-copy h2 { margin: 13px 0 8px; font: 800 clamp(34px, 4vw, 52px)/.95 "Barlow Condensed"; text-transform: uppercase; }
+.program-cta-copy p { margin: 0; max-width: 610px; color: #92918c; font-size: 12px; line-height: 1.7; }
+.program-cta-action { display: grid; justify-items: end; gap: 10px; }
+.program-cta-action .button { height: 48px; padding-inline: 21px; }
+
+/* ---------- Footer ---------- */
+.landing-footer { min-height: 110px; padding: 24px 7vw; display: flex; align-items: center; justify-content: space-between; color: #6f6f69; }
+.landing-footer .hub-mark { background: #2d2d29; color: #8e8e88; }
+.landing-footer > span { font-size: 9px; }
+
+/* ---------- Inner pages (join, university) ---------- */
+.page-content { max-width: 900px; margin: 0 auto; padding: 56px 7vw; }
+.page-content h1 { font: 800 clamp(34px, 5vw, 52px)/.95 "Barlow Condensed"; text-transform: uppercase; margin: 0 0 12px; }
+.page-content > p { color: #92918c; font-size: 13px; line-height: 1.7; }
+.form { display: grid; gap: 15px; margin-top: 28px; }
+.form label { display: grid; gap: 7px; }
+.form label > span { font-size: 10px; color: #b8b7b2; font-weight: 700; }
+.form input { width: 100%; border: 1px solid #373733; border-radius: 5px; background: #1b1b19; padding: 12px 13px; outline: none; color: white; font-size: 12px; }
+.form input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px #f36f2127; }
+.university-profile h2 { font: 800 clamp(30px, 4vw, 44px)/1 "Barlow Condensed"; text-transform: uppercase; margin: 0 0 18px; }
+.university-profile h3 { font: 700 18px "Barlow Condensed"; color: #b8b7b2; margin: 6px 0; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  .landing-main { padding-inline: 5vw; }
+  .landing-copy h1 { font-size: 62px; }
+  .program-cta { grid-template-columns: auto 1fr; }
+  .program-cta-action { grid-column: 2; justify-items: start; }
+}
+@media (max-width: 520px) {
+  .landing-nav { padding-inline: 20px; }
+  .landing-link { display: none; }
+  .landing-main { align-items: start; padding-top: 55px; }
+  .landing-copy h1 { font-size: 49px; }
+  .landing-copy > p { font-size: 11px; }
+  .university-search { max-height: 350px; }
+  .search-results { max-height: 238px; }
+  .landing-nav-actions .button { padding-inline: 12px; }
+  .program-cta { min-height: auto; padding: 48px 20px; grid-template-columns: 1fr; gap: 20px; }
+  .program-cta-mark { width: 58px; height: 58px; }
+  .program-cta-action { grid-column: auto; }
+  .program-cta-action .button { width: 100%; }
+  .landing-footer { padding-inline: 20px; }
+  .landing-footer > span { display: none; }
 }

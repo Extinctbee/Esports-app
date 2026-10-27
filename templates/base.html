@@ -1,27 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Collegiate Esports Hub{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="default-site-body">
+<body>
+<div class="landing">
 
     <!-- Site Header -->
-    <header class="site-header">
-        <h1>Collegiate Esports Hub</h1>
+    <header class="landing-nav">
+        <a class="hub-brand" href="{{ url_for('home') }}">
+            <span class="hub-mark">C</span>
+            <div>
+                <strong>COLLEGIATE</strong>
+                <small>ESPORTS HUB</small>
+            </div>
+        </a>
+        <div class="landing-nav-actions">
+            <a class="landing-link" href="{{ url_for('join') }}">For programs</a>
+            <a class="button button-secondary" href="#">Member sign in</a>
+        </div>
     </header>
     <!-- End of Site Header -->
-    
+
     <!-- Main Content -->
+    <main>
     {% block content %}
-    <!-- Block content allows child templates to override this section with their own content -->
+    <!-- Child templates override this section -->
     {% endblock %}
+    </main>
     <!-- End of Main Content -->
 
     <!-- Site Footer -->
-    <footer class="site-footer">
-        <p>&copy; 2026 Collegiate Esports Hub. All rights reserved.</p>
+    <footer class="landing-footer">
+        <div class="hub-brand">
+            <span class="hub-mark">C</span>
+            <div>
+                <strong>COLLEGIATE</strong>
+                <small>ESPORTS HUB</small>
+            </div>
+        </div>
+        <span>&copy; 2026 Collegiate Esports Hub. All rights reserved.</span>
     </footer>
     <!-- End of Site Footer -->
+
+</div>
 </body>
 </html>

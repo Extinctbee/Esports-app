@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+<!-- Index Page for Collegiate Esports Hub -->
+<!-- Block title allows overriding the title defined in the base template -->
+{% block title %}Collegiate Esports Hub{% endblock %}
+
+<!-- Block content allows inserting the main content for this page into the base template -->
+{% block content %}
+
+
+    <!-- Test Form to Route to First University Profile in DB 
+    <form action="{{ url_for('university', uID=1 )}}" method="GET">
+        <button type="submit">View Test University Profile</button>
+    </form>
+    -->
+
+    <!-- Hero Section -->
+    <div>
+        <P>--- YOUR CAMPUS. YOUR TEAMS. ONE HUB.</P>
+        <h1>Follow College Esports Closer.</h2>
+        <p>Discover university programs, meet their teams, and never miss a match, stream, or campus event.</p>
+    </div>
+    <!-- End of Hero Section -->
+
+    <!-- University Selection Section-->
+    <div>
+        <h2>Featured Programs</h2>
+        <ul>
+            <!-- Loop through each university and display it as a list item with a link to its profile page with jinja2 -->
+            {% for uni in universites %}
+            <li><a href="{{ url_for('university', uID=uni['uID']) }}">{{ uni['uName'] }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <!-- End of University Selection Section -->
+
+    <!-- Join Hub Section -->
+    <div>
+        <h2>Don't See your Program?</h2>
+        <p>If your program is not listed, you can send a request to have your program added to the hub.</p>
+        <p>We will review your request and add your program if it meets our criteria.</p>
+        <button><a href="{{ url_for('join') }}" class="button">Join Now</a></button>
+    </div>
+    <!-- End of Join Hub Section -->
+{% endblock %}

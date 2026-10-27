@@ -51,3 +51,5 @@ def university(uID):
 @app.route("/join")
 def join():
     return render_template("join.html")
+if __name__ == "__main__":
+    app.run(debug=True)
