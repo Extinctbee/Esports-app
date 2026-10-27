@@ -53,3 +53,22 @@ def join():
     return render_template("join.html")
 if __name__ == "__main__":
     app.run(debug=True)
+
+#Example Route
+@app.route("/post_update", methods=["POST"])
+def post_update():
+    # Connect to the database
+    connection = get_connection()
+
+    try:
+        with connection.cursor() as cursor:
+            # Example query to insert a new university update
+            cursor.execute(
+                "INSERT INTO UniversityUpdate (uID, staffAuID, uuTitle, uuInfo) VALUES (%s, %s, %s, %s)",
+                (1, 1, "New Update Title", "Details of the update.")
+            )
+            connection.commit()
+    finally:
+        connection.close()
+
+    return "Update posted successfully."
