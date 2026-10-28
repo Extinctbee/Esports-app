@@ -7,14 +7,21 @@
 <!-- Block content allows inserting the main content for this page into the base template -->
 {% block content %}
 
+    <section class="landing-main">
 
-    <!-- Test Form to Route to First University Profile in DB 
-    <form action="{{ url_for('university', uID=1 )}}" method="GET">
-        <button type="submit">View Test University Profile</button>
-    </form>
-    -->
+    <img
+        class="landing-image"
+        src="{{ url_for('static', filename='Hero.jpg') }}"
+        alt=""
+    >
 
-    <!-- Hero Section -->
+    <div class="landing-overlay"></div>
+
+    <div class="landing-copy">
+        <!-- Existing homepage content:
+             Heading, description, university search,
+             featured programs, etc. -->
+             <!-- Hero Section -->
     <div>
         <P>--- YOUR CAMPUS. YOUR TEAMS. ONE HUB.</P>
         <h1>Follow College Esports Closer.</h2>
@@ -34,6 +41,11 @@
     </div>
     <!-- End of University Selection Section -->
 
+    </div>
+
+    </section>
+
+    
     <!-- Join Hub Section -->
     <div>
         <h2>Don't See your Program?</h2>
