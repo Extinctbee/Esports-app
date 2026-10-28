@@ -9,11 +9,118 @@
     
 <div class="university-profile"> 
 
-    <!-- University Profile Header -->
-    <h2>University Profile: {{ currentUniversity.uName }}</h2>
-    
-    <!-- University Profile Details -->
-    <h3>State:{{ currentUniversity.uState }} </h3>
-    <h3>City: {{ currentUniversity.uCity }}</h3>
+    <!-- University Side Bar-->
+    <aside class="university-sidebar">
+        
+        <div>
+            <img src="{{ currentUniversity.uLogo }}" alt="{{ currentUniversity.uName }} Logo">
+            <div> 
+                <h3>{{ currentUniversity.uName }}</h3>
+                <h3>Esports</h3>
+            </div>
+            
+        </div>
+
+        <ul>
+            <li><button type="button" data-tab="overview">Overview</button></li>
+            <li><button type="button" data-tab="schedule">Schedule</button></li>
+            <li><button type="button" data-tab="teams">Teams</button></li>
+            <li><button type="button" data-tab="members">Members</button></li>
+            <li><button type="button" data-tab="updates">Updates</button></li>
+        </ul>
+
+        <!-- Sidebar Profile Button -->
+        <div class="sidebar-account">
+            <button type="button" data-tab="profile" class="sidebar-profile">
+                <span class="profile-avatar">G</span>
+                <span class="profile-info">
+                    <strong>Guest</strong>
+                    <small>View Profile</small>
+                </span>
+                <span class="profile-options">•••</span>
+            </button>
+        </div>
+    </aside>
+
+    <div class="university-profile-content">
+        <div>    
+            <!-- University Profile Top Bar-->
+            <div class="university-topbar">
+                <h1> {Current Tab Name}</h1>
+            </div>
+
+            <!-- University Overview Section-->
+            <section id="overview" class="university-tab">
+                <h2>Overview</h2>
+                <p>State: {{ currentUniversity.uState }}</p>
+                <p>City: {{ currentUniversity.uCity }}</p>
+
+            </section>
+
+            <!-- University Schedule Section-->
+            <section id="schedule" class="university-tab" hidden>
+                <h2>Schedule</h2>
+                <p>University match schedules will appear here.</p>
+            </section>
+        
+            <!-- University Teams Section -->
+            <section id="teams" class="university-tab" hidden>
+                <h2>Teams: </h2>
+                {% for game, gameTeams in teams|groupby('gtName') %}
+                    <h3>{{ game }}</h3>
+
+                    <ul>
+                        {% for team in gameTeams %}
+                            <li>
+                                {{ team.tName }} — {{ team.tSkillLevel }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No teams currently listed for this university.</p>
+                {% endfor %}
+            </section>
+
+            <!-- University Members Section -->
+            <section id="members" class="university-tab" hidden>
+                <h2>Members</h2>
+                <p>University esports team members will appear here.</p>
+            </section>
+
+            <!-- University Updates Section -->
+            <section id="updates" class="university-tab" hidden>
+                <h2>Updates</h2>
+                <p>University esports updates will appear here.</p>
+            </section>
+
+            <!-- University Profile Section -->
+            <section id="profile" class="university-tab" hidden>
+                <h2>Profile</h2>
+                <p>Account profiles and settings coming soon.</p>
+            </section>
+        </div>
+    </div>
+
+    <!-- Tab Selection Script -->
+    <script>
+    const tabButtons = document.querySelectorAll(
+        ".university-sidebar button[data-tab]"
+    );
+
+    const tabPanels = document.querySelectorAll(
+        ".university-tab"
+    );
+
+    tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const selectedTab = button.dataset.tab;
+
+            tabPanels.forEach(panel => {
+                panel.hidden = panel.id !== selectedTab;
+            });
+        });
+    });
+</script>
 </div>
 {% endblock %}
+

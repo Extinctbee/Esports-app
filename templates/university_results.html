@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+<!-- Index Page for Collegiate Esports Hub -->
+<!-- Block title allows overriding the title defined in the base template -->
+{% block title %}Collegiate Esports Hub{% endblock %}
+
+<!-- Block content allows inserting the main content for this page into the base template -->
+{% block content %}
+
+    <!-- University Selection Section-->
+    <form class="university-search" action="{{ url_for('search_university') }}" method="GET">
+            <div class="search-input-wrap">
+                <input type="text" name="q" placeholder="Search universities..." required>
+                <button type="submit" onclick="searchUniversities()">Search</button>
+            </div>
+    </form>
+
+    <!-- University Results Section -->
+    <div>
+        <h2>Search results for "{{ searchQuery }}"</h2>
+        <ul>
+            <!-- Loop through each university and display it as a list item with a link to its profile page with jinja2 -->
+            {% for uni in universities %}
+            <li><a href="{{ url_for('university', uID=uni['uID']) }}">{{ uni['uName'] }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <!-- End of University Selection Section -->
+
+{% endblock %}

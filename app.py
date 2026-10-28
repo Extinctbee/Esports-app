@@ -1,4 +1,4 @@
-from flask import Flask, abort, render_template
+from flask import Flask, abort, render_template, request
 from db import get_connection
 
 app = Flask(__name__)
@@ -24,7 +24,7 @@ def home():
 
     return render_template("index.html", universites=universites)
 
-# Route For University Proifles.
+# Route For University Profiles.
 @app.route("/university/<int:uID>")
 def university(uID):
 
@@ -38,6 +38,10 @@ def university(uID):
 
             # Fetch the university data entity from the query result
             university = cursor.fetchone()
+
+            numRowsAffected = cursor.execute( "SELECT t.tID, t.tName, t.tSkillLevel, g.gtName FROM Team AS t JOIN GameTitle AS g ON t.gtID = g.gtID WHERE t.uID = %s ORDER BY g.gtName, t.tName", (uID,))
+            
+            teams = cursor.fetchall()
     finally:
         connection.close()
 
@@ -45,31 +49,35 @@ def university(uID):
     if university is None:
         abort(404, description= (f"University with ID '{uID}' not found.") ) #Display a 404 error if the university data entity was not found
 
-    return render_template("university.html", currentUniversity=university)
+    return render_template("university.html", currentUniversity=university, teams=teams)
 
-# Route for the Join Hub page
-@app.route("/join")
-def join():
-    return render_template("join.html")
+# Route for University Profile Results
+@app.route("/search/")
+def search_university():
+    # Get the search query from the request arguments
+    uName = request.args.get("q", "").strip()
 
-#Example Route
-@app.route("/post_update", methods=["POST"])
-def post_update():
     # Connect to the database
     connection = get_connection()
 
     try:
         with connection.cursor() as cursor:
-            # Example query to insert a new university update
-            cursor.execute(
-                "INSERT INTO UniversityUpdate (uID, staffAuID, uuTitle, uuInfo) VALUES (%s, %s, %s, %s)",
-                (1, 1, "New Update Title", "Details of the update.")
-            )
-            connection.commit()
+            # Query the database for the university data entity based on the provided UniversityName
+            cursor.execute("Select * from University WHERE uName LIKE %s", (f"%{uName}%",))
+            universities = cursor.fetchall()
     finally:
         connection.close()
 
-    return "Update posted successfully."
+    # Verify if the university data entity was found
+    if universities is None or len(universities) == 0:
+        abort(404, description=(f"University with name '{uName}' not found. University may not be listed in the hub."))  # Display a 404 error if the university data entity was not found
+
+    return render_template("university_results.html", universities=universities, searchQuery=uName)
+
+# Route for the Join Hub page
+@app.route("/join")
+def join():
+    return render_template("join.html")
 
 #Keep below all routes for the main application entry point
 #Alternative to running app through CLI command in terminal: python -m flask --app app run --debug

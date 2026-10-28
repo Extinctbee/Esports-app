@@ -31,6 +31,12 @@
 
     <!-- University Selection Section-->
     <div>
+        <form class="university-search" action="{{ url_for('search_university') }}" method="GET">
+            <div class="search-input-wrap">
+                <input type="text" name="q" placeholder="Search universities..." required>
+                <button type="submit" onclick="searchUniversities()">Search</button>
+            </div>
+        </form>
         <h2>Featured Programs</h2>
         <ul>
             <!-- Loop through each university and display it as a list item with a link to its profile page with jinja2 -->
@@ -54,4 +60,9 @@
         <button><a href="{{ url_for('join') }}" class="button">Join Now</a></button>
     </div>
     <!-- End of Join Hub Section -->
+
+    <script>
+
+
+    </script>
 {% endblock %}
