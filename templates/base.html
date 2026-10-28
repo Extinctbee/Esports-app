@@ -11,8 +11,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <img class = "landing-image" src="{{ url_for('static', filename='Hero.jpg') }}" alt="Hero Image">
 <div class="landing">
+    <div class="landing-overlay"></div>
 
+    <div class = "landing-copy">
     <!-- Site Header -->
     <header class="landing-nav">
         <a class="hub-brand" href="{{ url_for('home') }}">
