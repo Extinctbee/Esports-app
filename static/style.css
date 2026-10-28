@@ -92,9 +92,26 @@ a { color: inherit; }
 .form label > span { font-size: 10px; color: #b8b7b2; font-weight: 700; }
 .form input { width: 100%; border: 1px solid #373733; border-radius: 5px; background: #1b1b19; padding: 12px 13px; outline: none; color: white; font-size: 12px; }
 .form input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px #f36f2127; }
+
+/* ---------- University Profile ---------- */
+.university-profile { display: grid; grid-template-columns: 248px minmax(0, 1fr); align-items: start;}
 .university-profile h2 { font: 800 clamp(30px, 4vw, 44px)/1 "Barlow Condensed"; text-transform: uppercase; margin: 0 0 18px; }
 .university-profile h3 { font: 700 18px "Barlow Condensed"; color: #b8b7b2; margin: 6px 0; }
-
+.university-profile-content { background-color: #EAE8E2 ; color: #141413; min-width: 0; padding: none; }
+.university-profile-content h2, .university-profile-content h3 { color: #141413; }
+.university-topbar { background: white; padding: 16px 24px; }
+.university-topbar h1 { margin: 0; }
+.university-sidebar { padding: 30px 22px 22px; background: var(--school-primary, var(--ink)); color: white; display: flex; flex-direction: column; min-height: 520px; box-shadow: inset -1px 0 #ffffff18; border-radius: 8px; position: sticky; top: 16px; }
+.university-sidebar ul { list-style: none; padding: 0; margin: 20px 0 0; }
+.university-sidebar li { margin-bottom: 8px; }
+.university-sidebar button { display: block; width: 100%; padding: 12px; border: 0; border-radius: 5px; background: #ffffff18; color: white; text-align: left;}
+.university-sidebar button:hover { background: #f3f1f148; }
+.sidebar-account { margin-top: auto;  padding-top: 16px; border-top: 1px solid #ffffff20;}
+.university-sidebar .sidebar-profile { display: flex; align-items: center; gap: 10px; width: 100%;}
+.profile-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--orange); color: white; display: grid; place-items: center; font-weight: 700; flex-shrink: 0; }
+.profile-info { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.profile-info small { color: #b8b7b2; font-size: 10px; }
+.profile-options { margin-left: auto; }
 /* ---------- Responsive ---------- */
 @media (max-width: 760px) {
   .landing-main { padding-inline: 5vw; }
