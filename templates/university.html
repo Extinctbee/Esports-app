@@ -66,7 +66,19 @@
             <!-- University Teams Section -->
             <section id="teams" class="university-tab" hidden>
                 <h2>Teams: </h2>
-                <p>University esports teams will appear here.</p>
+                {% for game, gameTeams in teams|groupby('gtName') %}
+                    <h3>{{ game }}</h3>
+
+                    <ul>
+                        {% for team in gameTeams %}
+                            <li>
+                                {{ team.tName }} — {{ team.tSkillLevel }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No teams currently listed for this university.</p>
+                {% endfor %}
             </section>
 
             <!-- University Members Section -->
