@@ -153,19 +153,20 @@ sDescription text,
     ON DELETE CASCADE
 );
 
-# Create Team Events (Team Season SCHEDULES Team Events 1:M)
-create table TeamEvent(
-teID int primary key auto_increment,
+# Create Team Matches (Team Season SCHEDULES Team Matches 1:M)
+create table TeamMatch(
+mID int primary key auto_increment,
 sID int NOT NULL,
-teTitle varchar(100) NOT NULL,
-teEventType varchar(50),
-teStartDate datetime,
-teEndDate datetime,
-teLocation varchar(150),
-teStreamURL varchar(255),
-teInfo text,
- 
-    CONSTRAINT fk_teamevent_season
+mOpponent varchar(100) NOT NULL,
+mStartDate datetime,
+mLocation varchar(150),
+mStreamURL varchar(255),
+mStatus ENUM('Scheduled', 'Completed', 'Cancelled') DEFAULT 'Scheduled',
+mTeamScore int,
+mOpponentScore int,
+mInfo text,
+
+    CONSTRAINT fk_teammatch_season
     FOREIGN KEY (sID)
     REFERENCES TeamSeason(sID)
     ON DELETE CASCADE

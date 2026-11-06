@@ -1,8 +1,8 @@
 -- 02_seed_cusa_minimal.sql
--- Minimal local DEMO data: 10 CUSA universities + two FICTIONAL teams each.
+-- Minimal local DEMO data: 10 CUSA universities + two FICTIONAL teams each, plus sample schedules.
 -- Universities are real. Every team below is invented, not an official roster.
 -- Existing universities/teams are preserved; no database DROP or DELETE.
--- Use after running the existing schema. No staff/accounts/events necessary for current UI.
+-- Use after running the existing schema. No staff/accounts are required for this demo.
 USE EsportsManagementDB;
 START TRANSACTION;
 
@@ -69,9 +69,63 @@ WHERE NOT EXISTS (
   WHERE t.uID = u.uID AND t.gtID = g.gtID AND t.tName = s.tName
 );
 
+-- Fictional Fall 2026 seasons for each DEMO team.
+-- Each season belongs to one team; rerunning this seed preserves existing seasons.
+INSERT INTO TeamSeason (tID, sTitle, sFormat, sStartDate, sEndDate, sDescription)
+SELECT t.tID, 'Fall 2026',
+       CASE WHEN g.gtName = 'Rocket League' THEN '3v3' ELSE '5v5' END,
+       '2026-08-17', '2026-12-11', 'DEMO season for schedule testing'
+FROM Team AS t
+JOIN GameTitle AS g ON g.gtID = t.gtID
+WHERE t.tName LIKE 'DEMO %'
+  AND NOT EXISTS (
+    SELECT 1 FROM TeamSeason AS ts
+    WHERE ts.tID = t.tID AND ts.sTitle = 'Fall 2026'
+  );
+
+-- Fictional matches for the DEMO team seasons.
+-- Match times differ by game; opponents are placeholders, not actual scheduled opponents.
+-- Existing DEMO matches are preserved when the seed is rerun.
+INSERT INTO TeamMatch (sID, mOpponent, mStartDate, mLocation, mInfo)
+SELECT ts.sID, 'DEMO Opponent',
+       CASE WHEN g.gtName = 'Rocket League'
+            THEN '2026-11-18 18:00:00'
+            ELSE '2026-11-19 19:00:00' END,
+       'Online', 'Fictional match for university schedule testing'
+FROM TeamSeason AS ts
+JOIN Team AS t ON t.tID = ts.tID
+JOIN GameTitle AS g ON g.gtID = t.gtID
+WHERE t.tName LIKE 'DEMO %'
+  AND ts.sTitle = 'Fall 2026'
+  AND NOT EXISTS (
+    SELECT 1 FROM TeamMatch AS m
+    WHERE m.sID = ts.sID AND m.mOpponent = 'DEMO Opponent'
+  );
+
+-- Fictional university-wide events to test the combined schedule.
+-- These belong to University, not to individual teams; no staff/accounts are required.
+INSERT INTO UniversityEvent (uID, ueTitle, ueEventType, ueStartDate, ueEndDate, ueLocation, ueInfo)
+SELECT u.uID, 'DEMO Esports Open House', 'Community',
+       '2026-11-20 15:00:00', '2026-11-20 17:00:00',
+       'Campus', 'Fictional university event for schedule testing'
+FROM University AS u
+WHERE u.uName IN (
+  'University of Delaware', 'Florida International University',
+  'Jacksonville State University', 'Kennesaw State University',
+  'Liberty University', 'Middle Tennessee State University',
+  'Missouri State University', 'New Mexico State University',
+  'Sam Houston State University', 'Western Kentucky University'
+)
+  AND NOT EXISTS (
+    SELECT 1 FROM UniversityEvent AS ue
+    WHERE ue.uID = u.uID
+      AND ue.ueTitle = 'DEMO Esports Open House'
+      AND ue.ueStartDate = '2026-11-20 15:00:00'
+  );
+
 COMMIT;
 
--- Verify the school and fictional team records.
+-- Verify the school, fictional team, season, match, and university event records.
 SELECT COUNT(*) AS cusa_university_count FROM University
 WHERE uName IN ('University of Delaware', 'Florida International University', 'Jacksonville State University', 'Kennesaw State University', 'Liberty University', 'Middle Tennessee State University', 'Missouri State University', 'New Mexico State University', 'Sam Houston State University', 'Western Kentucky University');
 
@@ -79,3 +133,19 @@ SELECT u.uName, COUNT(t.tID) AS team_count
 FROM University u LEFT JOIN Team t ON t.uID=u.uID AND t.tName LIKE 'DEMO %'
 WHERE u.uName IN ('University of Delaware', 'Florida International University', 'Jacksonville State University', 'Kennesaw State University', 'Liberty University', 'Middle Tennessee State University', 'Missouri State University', 'New Mexico State University', 'Sam Houston State University', 'Western Kentucky University')
 GROUP BY u.uID, u.uName ORDER BY u.uName;
+
+-- Verify the fictional season and schedule records.
+SELECT COUNT(*) AS demo_team_season_count
+FROM TeamSeason AS ts
+JOIN Team AS t ON t.tID = ts.tID
+WHERE t.tName LIKE 'DEMO %' AND ts.sTitle = 'Fall 2026';
+
+SELECT COUNT(*) AS demo_team_match_count
+FROM TeamMatch AS m
+JOIN TeamSeason AS ts ON ts.sID = m.sID
+JOIN Team AS t ON t.tID = ts.tID
+WHERE t.tName LIKE 'DEMO %' AND m.mOpponent = 'DEMO Opponent';
+
+SELECT COUNT(*) AS demo_university_event_count
+FROM UniversityEvent
+WHERE ueTitle = 'DEMO Esports Open House';

@@ -96,8 +96,12 @@
 
                     <ul>
                         {% for team in gameTeams %}
+
                             <li>
-                                {{ team.tName }} — {{ team.tSkillLevel }}
+                                <div class="uni-card">
+                                    <h4>{{ team.tName }}</h4>
+                                    <p>Skill Level: {{ team.tSkillLevel }}</p>
+                                </div>
                             </li>
                         {% endfor %}
                     </ul>
@@ -115,7 +119,20 @@
             <!-- University Updates Section -->
             <section id="updates" class="university-tab" hidden>
                 <h2>Updates</h2>
-                <p>University esports updates will appear here.</p>
+
+                <div class="updates-list">
+                    {% for update in updates %}
+                        <div class="uni-card">
+                            <div class="update-item">
+                                <h3>{{ update.uuTitle }}</h3>
+                                <p>{{ update.uuContent }}</p>
+                                <small>Posted on {{ update.uuDatePosted.strftime('%B %d, %Y') }}</small>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p>No updates available for this university.</p>
+                    {% endfor %}
+                </div>
             </section>
 
             <!-- University Profile Section -->
