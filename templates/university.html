@@ -46,14 +46,39 @@
         <div>    
             <!-- University Profile Top Bar-->
             <div class="university-topbar">
-                <h1> {Current Tab Name}</h1>
+                <h1 id="current-tab-name"> Overview</h1>
             </div>
 
             <!-- University Overview Section-->
             <section id="overview" class="university-tab">
-                <h2>Overview</h2>
-                <p>State: {{ currentUniversity.uState }}</p>
-                <p>City: {{ currentUniversity.uCity }}</p>
+
+                <div class="uni-card-grid">
+                    <div class="uni-card">
+                        <h3 class="uni-card-title">State</h3>
+                        <p class="uni-card-text">{{ currentUniversity.uState }}</p>
+                    </div>
+                    <div class="uni-card">
+                        <h3 class="uni-card-title">City</h3>
+                        <p class="uni-card-text">{{ currentUniversity.uCity }}</p>
+                    </div>
+                    <div class="uni-card">
+                        <h3 class="uni-card-title">Active Players</h3>
+                        <p class="uni-card-text">{{ activePlayers|length }}</p>
+                    </div>
+                    <div class="uni-card">
+                        <h3 class="uni-card-title">Season Record</h3>
+                        <p class="uni-card-text">Coming soon!</p>
+                    </div>
+
+                    <div class="uni-card">
+                        <h3 class="uni-card-title">Upcoming Matches</h3>
+                        <p class="uni-card-text">Coming soon!</p>
+                    </div>
+                    <div class="uni-card">
+                        <h3 class="uni-card-title">Our Teams</h3>
+                        <p class="uni-card-text">{{ teams|length }}</p>
+                    </div>
+                </div>
 
             </section>
 
@@ -118,6 +143,9 @@
             tabPanels.forEach(panel => {
                 panel.hidden = panel.id !== selectedTab;
             });
+
+            <!-- Update the current tab name -->
+            document.getElementById("current-tab-name").textContent = button.textContent;
         });
     });
 </script>

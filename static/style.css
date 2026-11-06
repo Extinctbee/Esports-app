@@ -68,6 +68,30 @@ a { color: inherit; }
 .school-result > svg { color: #aaa79f; transition: .2s ease; }
 .no-results { padding: 26px 12px; color: #8d8a83; font-size: 11px; text-align: center; display: none; }
 
+
+/* ============================================================
+   UNIVERSITY PROFILE — REUSABLE CONTENT CARDS
+
+   .university-tab     - Spacing for each university tab
+   .uni-card-grid      - Responsive layout for multiple cards
+   .uni-card           - Main reusable card container
+   .uni-card-title     - Primary heading inside a card
+   .uni-card-subtitle  - Secondary information / metadata
+   .uni-card-text      - General card description or details
+
+   Used for: Overview, Teams, Members, Schedule, Updates
+   ============================================================ */
+
+/* Give each tab breathing room beneath the top bar */
+.university-tab { padding: 24px; }
+.university-tab[hidden] { display: none; }
+.uni-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-top: 16px; }
+.uni-card { background: var(--white); color: var(--ink); border: 1px solid var(--line) ;border-radius: 8px; box-shadow: 0 2px 6px #0000001a; padding: 20px; }
+.uni-card-title { font: 700 22px "Barlow Condensed", sans-serif; margin: 0 0 8px; }
+.uni-card-subtitle { font-size: 12px "Barlow Condensed", sans-serif; color: var(--muted); margin: 0 0 12px; }
+.uni-card-text { font-size: 13px; line-height: 1.6; margin: 0; }
+
+
 /* ---------- "Don't see your program" ---------- */
 .program-cta { min-height: 310px; padding: 68px 7vw; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 30px; background: #1b1b19; border-top: 1px solid #ffffff12; border-bottom: 1px solid #ffffff12; }
 .program-cta-mark { width: 74px; height: 74px; display: grid; place-items: center; color: var(--orange); background: #252522; border: 1px solid #373733; border-radius: 8px; }
@@ -134,4 +158,6 @@ a { color: inherit; }
   .program-cta-action .button { width: 100%; }
   .landing-footer { padding-inline: 20px; }
   .landing-footer > span { display: none; }
+  .university-tab { padding: 16px; }
+  .uni-card-grid { grid-template-columns: 1fr; }
 }

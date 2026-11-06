@@ -40,8 +40,35 @@ def university(uID):
             university = cursor.fetchone()
 
             numRowsAffected = cursor.execute( "SELECT t.tID, t.tName, t.tSkillLevel, g.gtName FROM Team AS t JOIN GameTitle AS g ON t.gtID = g.gtID WHERE t.uID = %s ORDER BY g.gtName, t.tName", (uID,))
-            
             teams = cursor.fetchall()
+
+            cursor.execute("""
+                SELECT
+                    tm.aUID,
+                    tm.gamerTag,
+                    tm.bio,
+                    tm.major,
+                    au.auFirstName,
+                    au.auLastName,
+                    t.tName,
+                    gt.gtName,
+                    tms.tmsTeamRole
+                FROM TeamMember AS tm
+                JOIN TeamMembership AS tms
+                    ON tm.aUID = tms.aUID
+                JOIN TeamSeason AS ts
+                    ON tms.sID = ts.sID
+                JOIN Team AS t
+                    ON ts.tID = t.tID
+                JOIN GameTitle AS gt
+                    ON t.gtID = gt.gtID
+                JOIN AccountUser AS au
+                    ON tm.aUID = au.aUID
+                WHERE t.uID = %s
+                ORDER BY gt.gtName, t.tName, tm.gamerTag
+            """, (uID,))
+
+            activePlayers = cursor.fetchall()
     finally:
         connection.close()
 
@@ -49,7 +76,7 @@ def university(uID):
     if university is None:
         abort(404, description= (f"University with ID '{uID}' not found.") ) #Display a 404 error if the university data entity was not found
 
-    return render_template("university.html", currentUniversity=university, teams=teams)
+    return render_template("university.html", currentUniversity=university, teams=teams, activePlayers=activePlayers)
 
 # Route for University Profile Results
 @app.route("/search/")
