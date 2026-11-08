@@ -237,3 +237,7 @@ uarCity varchar(100),
 uarRequestDate datetime DEFAULT CURRENT_TIMESTAMP,
 uarStatus ENUM('Pending', 'Approved', 'Denied') DEFAULT 'Pending'
 );
+
+
+
+

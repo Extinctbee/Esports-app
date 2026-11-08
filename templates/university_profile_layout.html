@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Shared university layout. All pages extending this must pass currentUniversity. -->
+<div class="university-profile" data-university-url="{{ url_for('university', uID=currentUniversity.uID) }}">
+
+    <!-- University Side Bar-->
+    <aside class="university-sidebar">
+        
+        <div>
+            {% if currentUniversity.uLogoURL %}
+                <img class="university-logo" src="{{url_for('static', filename=currentUniversity.uLogoURL) }}" alt="{{ currentUniversity.uName }} Logo" style="width: 80px; height:80px; object-fit: contain;">
+            {% else %}
+                <img class="university-logo" src="{{ url_for('static', filename='img/site/uni_logo_placeholder.png') }}" alt="Placeholder Logo" style="width: 80px; height: 80px; object-fit: contain;">
+            {% endif %}
+            <div> 
+                <h3>{{ currentUniversity.uName }}</h3>
+                <h3>Esports</h3>
+            </div>
+            
+        </div>
+
+        <ul>
+            <li><button type="button" data-tab="overview">Overview</button></li>
+            <li><button type="button" data-tab="schedule">Schedule</button></li>
+            <li><button type="button" data-tab="teams">Teams</button></li>
+            <li><button type="button" data-tab="members">Members</button></li>
+            <li><button type="button" data-tab="updates">Updates</button></li>
+        </ul>
+
+        <!-- Sidebar Profile Button -->
+        <div class="sidebar-account">
+            <button type="button" data-tab="profile" class="sidebar-profile">
+                <span class="profile-avatar">G</span>
+                <span class="profile-info">
+                    <strong>Guest</strong>
+                    <small>View Profile</small>
+                </span>
+                <span class="profile-options">•••</span>
+            </button>
+        </div>
+    </aside>
+
+    <div class="university-profile-content">
+        <div>
+            <!-- University Profile Top Bar-->
+            <div class="university-topbar">
+                <h1 id="current-tab-name">{% block profile_heading %}Overview{% endblock %}</h1>
+            </div>
+
+            {% block profile_content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Sidebar navigation always opens the main university page and its selected tab. -->
+    <script>
+    const universityPageUrl = document.querySelector(".university-profile").dataset.universityUrl;
+    const tabButtons = document.querySelectorAll(".university-sidebar button[data-tab]");
+    const tabPanels = document.querySelectorAll(".university-tab");
+
+    function showUniversityTab() {
+        if (window.location.pathname !== universityPageUrl) return;
+
+        const selectedTab = window.location.hash.slice(1) || "overview";
+        const selectedButton = Array.from(tabButtons).find(
+            button => button.dataset.tab === selectedTab
+        );
+        if (!selectedButton) return;
+
+        tabPanels.forEach(panel => {
+            panel.hidden = panel.id !== selectedTab;
+        });
+
+        document.getElementById("current-tab-name").textContent =
+            selectedTab.charAt(0).toUpperCase() + selectedTab.slice(1);
+    }
+
+    tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            if (window.location.pathname === universityPageUrl) {
+                window.location.hash = button.dataset.tab;
+                showUniversityTab();
+            } else {
+                window.location.href = universityPageUrl + "#" + button.dataset.tab;
+            }
+        });
+    });
+
+    window.addEventListener("hashchange", showUniversityTab);
+    showUniversityTab();
+    </script>
+</div>
+{% endblock %}

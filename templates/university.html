@@ -1,53 +1,10 @@
-{% extends "base.html" %}
+{% extends "university_profile_layout.html" %}
 
 {% block title %}University Profile{% endblock %}
 
-{% block content %}
+{% block profile_heading %}Overview{% endblock %}
 
-<!-- University Profile with passed ID => {{ uID }} -->
-<!-- currentUniversity is the fetched university data containing all University attributes -->
-    
-<div class="university-profile"> 
-
-    <!-- University Side Bar-->
-    <aside class="university-sidebar">
-        
-        <div>
-            <img src="{{ currentUniversity.uLogo }}" alt="{{ currentUniversity.uName }} Logo">
-            <div> 
-                <h3>{{ currentUniversity.uName }}</h3>
-                <h3>Esports</h3>
-            </div>
-            
-        </div>
-
-        <ul>
-            <li><button type="button" data-tab="overview">Overview</button></li>
-            <li><button type="button" data-tab="schedule">Schedule</button></li>
-            <li><button type="button" data-tab="teams">Teams</button></li>
-            <li><button type="button" data-tab="members">Members</button></li>
-            <li><button type="button" data-tab="updates">Updates</button></li>
-        </ul>
-
-        <!-- Sidebar Profile Button -->
-        <div class="sidebar-account">
-            <button type="button" data-tab="profile" class="sidebar-profile">
-                <span class="profile-avatar">G</span>
-                <span class="profile-info">
-                    <strong>Guest</strong>
-                    <small>View Profile</small>
-                </span>
-                <span class="profile-options">•••</span>
-            </button>
-        </div>
-    </aside>
-
-    <div class="university-profile-content">
-        <div>    
-            <!-- University Profile Top Bar-->
-            <div class="university-topbar">
-                <h1 id="current-tab-name"> Overview</h1>
-            </div>
+{% block profile_content %}
 
             <!-- University Overview Section-->
             <section id="overview" class="university-tab">
@@ -84,13 +41,27 @@
 
             <!-- University Schedule Section-->
             <section id="schedule" class="university-tab" hidden>
-                <h2>Schedule</h2>
-                <p>University match schedules will appear here.</p>
+                {% for event in universitySchedule %}
+                    <div class="uni-card">
+                        <h3>{{ event.title }}</h3>
+                        {% if event.startDate %}
+                            <p>Start: {{ event.startDate.strftime('%B %d, %Y %I:%M %p') }}</p>
+                        {% else %}
+                            <p>Start: N/A</p>
+                        {% endif %}
+                        {% if event.endDate %}
+                            <p>End: {{ event.endDate.strftime('%B %d, %Y %I:%M %p') }}</p>
+                        {% endif %}
+                        <p>Location: {{ event.location }}</p>
+                    </div>
+                {% else %}
+                    <p>No upcoming events scheduled for this university.</p>
+                {% endfor %}
             </section>
         
             <!-- University Teams Section -->
             <section id="teams" class="university-tab" hidden>
-                <h2>Teams: </h2>
+                <h2>Teams ({{teams|length}}): </h2>
                 {% for game, gameTeams in teams|groupby('gtName') %}
                     <h3>{{ game }}</h3>
 
@@ -98,10 +69,12 @@
                         {% for team in gameTeams %}
 
                             <li>
-                                <div class="uni-card">
-                                    <h4>{{ team.tName }}</h4>
-                                    <p>Skill Level: {{ team.tSkillLevel }}</p>
-                                </div>
+                                <a href="{{ url_for('team', tID=team.tID) }}">
+                                    <div class="uni-card">
+                                        <h4>{{ team.tName }}</h4>
+                                        <p>Skill Level: {{ team.tSkillLevel }}</p>
+                                    </div>
+                                </a>
                             </li>
                         {% endfor %}
                     </ul>
@@ -112,8 +85,19 @@
 
             <!-- University Members Section -->
             <section id="members" class="university-tab" hidden>
-                <h2>Members</h2>
-                <p>University esports team members will appear here.</p>
+                <h2>Members ({{ activePlayers|length }})</h2>
+                {% for player in activePlayers %}
+                    <a href="{{ url_for('player', auID=player.auID) }}">
+                        <div class="uni-card">
+                            <h4>{{ player.gamerTag }}</h4>
+                            <p>Game: {{ player.gtName }}</p>
+                            <p>Role: {{ player.tmsTeamRole or 'Not specified' }}</p>
+                        </div>
+                    </a>
+                {% else %}
+                    <p>No active players currently listed for this university.</p>
+                {% endfor %}
+                
             </section>
 
             <!-- University Updates Section -->
@@ -125,7 +109,7 @@
                         <div class="uni-card">
                             <div class="update-item">
                                 <h3>{{ update.uuTitle }}</h3>
-                                <p>{{ update.uuContent }}</p>
+                                <p>{{ update.uuInfo }}</p>
                                 <small>Posted on {{ update.uuDatePosted.strftime('%B %d, %Y') }}</small>
                             </div>
                         </div>
@@ -140,32 +124,5 @@
                 <h2>Profile</h2>
                 <p>Account profiles and settings coming soon.</p>
             </section>
-        </div>
-    </div>
 
-    <!-- Tab Selection Script -->
-    <script>
-    const tabButtons = document.querySelectorAll(
-        ".university-sidebar button[data-tab]"
-    );
-
-    const tabPanels = document.querySelectorAll(
-        ".university-tab"
-    );
-
-    tabButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            const selectedTab = button.dataset.tab;
-
-            tabPanels.forEach(panel => {
-                panel.hidden = panel.id !== selectedTab;
-            });
-
-            <!-- Update the current tab name -->
-            document.getElementById("current-tab-name").textContent = button.textContent;
-        });
-    });
-</script>
-</div>
 {% endblock %}
-

@@ -8,16 +8,16 @@ START TRANSACTION;
 
 -- Universities: existing uName values are left unchanged.
 INSERT INTO University (uName, uState, uCity, uLogoURL) VALUES
-  ('University of Delaware', 'Delaware', 'Newark', NULL), -- DEL
-  ('Florida International University', 'Florida', 'Miami', NULL), -- FIU
-  ('Jacksonville State University', 'Alabama', 'Jacksonville', NULL), -- JSU
-  ('Kennesaw State University', 'Georgia', 'Kennesaw', NULL), -- KSU
-  ('Liberty University', 'Virginia', 'Lynchburg', NULL), -- LIB
-  ('Middle Tennessee State University', 'Tennessee', 'Murfreesboro', NULL), -- MTSU
-  ('Missouri State University', 'Missouri', 'Springfield', NULL), -- MSU
-  ('New Mexico State University', 'New Mexico', 'Las Cruces', NULL), -- NMSU
-  ('Sam Houston State University', 'Texas', 'Huntsville', NULL), -- SHSU
-  ('Western Kentucky University', 'Kentucky', 'Bowling Green', NULL) -- WKU
+  ('University of Delaware', 'Delaware', 'Newark', 'img/university-logo/UD.png'), -- DEL
+  ('Florida International University', 'Florida', 'Miami', 'img/university-logo/FIU.png'), -- FIU
+  ('Jacksonville State University', 'Alabama', 'Jacksonville', 'img/university-logo/JSU.png'), -- JSU
+  ('Kennesaw State University', 'Georgia', 'Kennesaw', 'img/university-logo/KSU.png'), -- KSU
+  ('Liberty University', 'Virginia', 'Lynchburg', 'img/university-logo/LU.png'), -- LIB
+  ('Middle Tennessee State University', 'Tennessee', 'Murfreesboro', 'img/university-logo/MTSU.png'), -- MTSU
+  ('Missouri State University', 'Missouri', 'Springfield', 'img/university-logo/MSU.png'), -- MSU
+  ('New Mexico State University', 'New Mexico', 'Las Cruces', 'img/university-logo/NMSU.png'), -- NMSU
+  ('Sam Houston State University', 'Texas', 'Huntsville', 'img/university-logo/SHSU.png'), -- SHSU
+  ('Western Kentucky University', 'Kentucky', 'Bowling Green', 'img/university-logo/WKU.png') -- WKU
 ON DUPLICATE KEY UPDATE uID = uID;
 
 -- Two shared game titles, reused if they already exist.
