@@ -2,7 +2,7 @@
 
 {% block title %}Player Profile{% endblock %}
 
-{% block profile_heading %}{{ currentPlayer.gamerTag }}{% endblock %}
+{% block profile_heading %}{{ currentUniversity.uName }} / Player / {{currentPlayer.gamerTag}}{% endblock %}
 
 {% block profile_content %}
 
@@ -20,7 +20,7 @@
                     <div class="uni-card">
                         <h3 class="uni-card-title">Team Member Information</h3>
                         <p class="uni-card-text">About {{ currentPlayer.gamerTag }}</p>
-                        <line>_____________________________________________________</line>
+                        <line>___________________________________________</line>
                         <p class="uni-card-text">Major: {{ currentPlayer.major }}</p>
                         <p class="uni-card-text">Bio: {{ currentPlayer.bio }}</p>
                     </div>
@@ -36,7 +36,15 @@
                         <h3 class="uni-card-title">Team History</h3>
                         <ul class="uni-card-text">
                             {% for team in teams %}
-                                <li>{{ team.tName }} ({{ team.gtName }})</li>
+
+                                <li>
+                                    
+                                    <a href="{{ url_for('team', tID=team.tID) }}">
+                                        <div class="uni-card">
+                                            {{ team.tName }} ({{ team.gtName }})
+                                        </div>
+                                    </a>
+                                </li>
                             {% endfor %}
                         </ul>
                     </div>

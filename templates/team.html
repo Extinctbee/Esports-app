@@ -22,13 +22,58 @@
                         <h3 class="uni-card-title">Active Lineup</h3>
                         <h2 class="uni-card-title">Team Roster</h2>
                         <line>_____________________________________________________</line>
+                        {% for player in players %}
+                        <a href="{{url_for('player', auID=player.auID)}}">
+                            <div class="uni-card">    
+                                <p class="uni-card-text">{{ player.gamerTag }}</p>
+                            </div>
+                        </a>
+                        {% else %}
+                            <p>No active players currently listed for this team.</p>
+                        {% endfor %}
                     </div>
 
                     <div class="uni-card">
                         <h3 class="uni-card-title">Team Schedule</h3>
                         <h2 class="uni-card-title">Upcoming Matches</h2>
                         <line>_____________________________________________________</line>
+                        {% for event in teamSchedule %}
+                            <div class="uni-card">
+                                <h3>{{event.tName}} vs. {{event.mOpponent}}</h3>
+                                {% if event.mStartDate %}
+                                    <p>Start: {{ event.mStartDate.strftime('%B %d, %Y %I:%M %p') }}</p>
+                                {% else %}
+                                    <p>Start: N/A</p>
+                                {% endif %}
+                                {% if event.mLocation%}
+                                    <p>Location: {{ event.mLocation}}</p>
+                                {%else%}
+                                    <p>Location: N/A</p>
+                                {% endif %}
+                                <p>({{event.mStatus}})</p>
+                            </div>
+                        {% else %}
+                            <p>No upcoming matches currently listed for this team.</p>
+                        {% endfor %}
                     </div>
+                </div>
+
+                <div class="uni-card">
+                    <h3 class="uni-card-title">Team History</h3>
+                        <h2 class="uni-card-title">All Seasons</h2>
+                        <line>_____________________________________________________</line>
+                        {% for season in teamsSeasons %}
+                        <a href="{{ url_for('teamSeason', sID=season.sID) }}">
+                            <div class="uni-card">
+                                <p>{{season.sTitle}}</p>
+                            </div>
+                        </a>
+                        {%else%}
+                            <div class="uni-card">
+                                <p>No seasons recorded for this team yet...</p>
+                            </div>
+                        {% endfor %}
+
                 </div>
             </section>
 

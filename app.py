@@ -155,6 +155,14 @@ def team(tID):
             universityID = cursor.fetchone()
             numRowsAffected = cursor.execute("SELECT * FROM University WHERE uID = %s", (universityID['uID'],)) if universityID else None
             teamUniversity = cursor.fetchone()
+
+            #Fetch all team events
+            numRowsAffected = cursor.execute("Select * from TeamSeasonMatches Where tID = %s AND mStartDate >= CURDATE()", (tID,))
+            teamSchedule = cursor.fetchall()
+
+            #Fetch all teams seasons
+            numRowsAffected = cursor.execute("Select * from TeamSeason where tID = %s", (tID,))
+            teamsSeasons = cursor.fetchall()
     finally:
         connection.close()
 
@@ -162,7 +170,70 @@ def team(tID):
     if team is None:
         abort(404, description=(f"Team with ID '{tID}' not found."))  # Display a 404 error if the team data entity was not found
 
-    return render_template("team.html", currentTeam=team, players=players, currentUniversity=teamUniversity)
+    return render_template("team.html", currentTeam=team, players=players, currentUniversity=teamUniversity, teamSchedule = teamSchedule, teamsSeasons = teamsSeasons)
+
+# Route for a specific team's season page
+@app.route("/team/season/<int:sID>")
+def teamSeason(sID):
+    connection = get_connection()
+
+    try:
+        with connection.cursor() as cursor:
+
+            # Get the selected season
+            cursor.execute(
+                "SELECT * FROM TeamSeason WHERE sID = %s",
+                (sID,)
+            )
+            currentSeason = cursor.fetchone()
+
+            if currentSeason is None:
+                abort(404)
+
+            # Get the team and its game title
+            cursor.execute("""
+                SELECT t.*, g.gtName
+                FROM Team AS t
+                JOIN GameTitle AS g ON t.gtID = g.gtID
+                WHERE t.tID = %s
+            """, (currentSeason["tID"],))
+            currentTeam = cursor.fetchone()
+
+            # Get the university for the shared sidebar
+            cursor.execute(
+                "SELECT * FROM University WHERE uID = %s",
+                (currentTeam["uID"],)
+            )
+            currentUniversity = cursor.fetchone()
+
+            # Get this season's players
+            cursor.execute(
+                "SELECT * FROM PlayerSeasons WHERE sID = %s",
+                (sID,)
+            )
+            players = cursor.fetchall()
+
+            # Get ALL matches for this season
+            cursor.execute("""
+                SELECT *
+                FROM TeamSeasonMatches
+                WHERE sID = %s
+                ORDER BY mStartDate ASC
+            """, (sID,))
+            teamSchedule = cursor.fetchall()
+
+    finally:
+        connection.close()
+
+    return render_template(
+        "team_season.html",
+        currentSeason=currentSeason,
+        currentTeam=currentTeam,
+        currentUniversity=currentUniversity,
+        players=players,
+        teamSchedule=teamSchedule
+    )
+
 
 # Route for the Join Hub page
 @app.route("/join")

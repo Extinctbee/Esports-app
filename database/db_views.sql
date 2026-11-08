@@ -66,3 +66,58 @@ JOIN TeamMembership AS tms ON tm.auID = tms.auID
 JOIN TeamSeason AS ts ON tms.sID = ts.sID
 JOIN Team AS t ON ts.tID = t.tID
 JOIN GameTitle AS g ON t.gtID = g.gtID;
+
+-- Players Seasons View
+-- Gets players, their teams, and their associated seasons per team
+CREATE OR REPLACE VIEW PlayerSeasons AS
+SELECT
+    p.auID,
+    p.gamerTag,
+    tm.tmsID,
+    tm.tmsTeamRole,
+    s.sID,
+    s.sTitle,
+    s.sFormat,
+    s.sStartDate,
+    s.sEndDate,
+    s.sRecord,
+    s.sDescription,
+    t.tID,
+    t.tName,
+    t.tSkillLevel,
+    t.gtID,
+    t.uID,
+    g.gtName
+
+FROM TeamMember AS p
+JOIN TeamMembership AS tm ON p.auID = tm.auID
+JOIN TeamSeason AS s ON tm.sID = s.sID
+JOIN Team AS t ON s.tID = t.tID
+JOIN GameTitle AS g ON t.gtID = g.gtID;
+
+-- Team Season Matches View
+-- Gets all matches associated with a team's seasons,
+-- including team information, game title, and every match attribute.
+CREATE OR REPLACE VIEW TeamSeasonMatches AS
+SELECT
+    t.tID,
+    t.tName,
+    g.gtName,
+    s.sTitle,
+    m.*
+
+FROM TeamMatch AS m
+JOIN TeamSeason AS s ON m.sID = s.sID
+JOIN Team AS t ON s.tID = t.tID
+JOIN GameTitle AS g ON t.gtID = g.gtID;
+
+-- View tables
+Select * from UniversitySchedule;
+Select * from UniversityPlayers;
+Select * from PlayerSeasons;
+Select * from TeamSeasonMatches;
+
+
+
+
+
