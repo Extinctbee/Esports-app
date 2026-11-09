@@ -171,3 +171,39 @@ a { color: inherit; }
   .university-tab { padding: 16px; }
   .uni-card-grid { grid-template-columns: 1fr; }
 }
+
+
+
+   /* Header row: title on the left, Save button on the right */
+.uni-tab-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.uni-tab-header .eyebrow { margin-bottom: 8px; }
+.uni-tab-header h2 { margin-bottom: 6px; }
+
+/* Modifier: narrow left card, wide right card (still a .uni-card-grid) */
+.uni-card-grid--profile { grid-template-columns: 325px minmax(0, 1fr); align-items: start; }
+
+/* Modifier: dark version of .uni-card */
+.uni-card-dark { background: var(--ink); border-color: var(--ink); color: white; text-align: center; display: grid; justify-items: center; padding: 40px 28px 32px; }
+.uni-card-dark .uni-card-title { color: white; font-size: 30px; margin: 22px 0 4px; }
+.uni-card-dark .uni-card-subtitle { color: #8e8e88; }
+.uni-card-dark .uni-card-text { color: #73736e; font-size: 11px; margin-top: 24px; }
+.uni-card-dark .profile-avatar { width: 105px; height: 105px; font-size: 28px; background: linear-gradient(145deg, #f58440, #ac4014); }
+
+/* Badge (replaces your existing .permission-badge rule) */
+.permission-badge { display: inline-flex; align-items: center; gap: 6px; margin: 14px 0 0; padding: 8px 16px; border-radius: 999px; background: #233329; color: #65c684; font-size: 11px; font-weight: 700; }
+
+/* Form fields inside a .uni-card */
+.uni-card .eyebrow { margin: 0 0 8px; }
+.uni-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 18px; margin-top: 18px; padding-top: 22px; border-top: 1px solid var(--line); }
+.uni-field { display: grid; gap: 8px; }
+.uni-field-full { grid-column: 1 / -1; }
+.uni-field > span { font-size: 11px; font-weight: 700; color: #3b3a36; }
+.uni-field input, .uni-field textarea { width: 100%; padding: 14px 16px; border: 1px solid var(--line); border-radius: 6px; background: #faf9f6; color: var(--ink); font-size: 14px; outline: none; }
+.uni-field input:focus, .uni-field textarea:focus { border-color: var(--orange); box-shadow: 0 0 0 3px #f36f2127; background: white; }
+
+@media (max-width: 760px) {
+  .uni-card-grid--profile { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .uni-field-grid { grid-template-columns: 1fr; }
+}

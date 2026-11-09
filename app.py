@@ -260,6 +260,9 @@ def teamSeason(sID):
         teamSchedule=teamSchedule
     )
 
+@app.route("/login")
+def login():
+    return render_template("login.html")
 
 # Route for the Join Hub page
 @app.route("/join", methods=["GET", "POST"])

@@ -121,8 +121,76 @@
 
             <!-- University Profile Section -->
             <section id="profile" class="university-tab" hidden>
-                <h2>Profile</h2>
-                <p>Account profiles and settings coming soon.</p>
+
+                <div class="uni-tab-header">
+                    <div>
+                        <p class="eyebrow">Account profile</p>
+                        <h2>Profile settings</h2>
+                        <p class="uni-card-text">Manage how you appear to university staff and team members.</p>
+                    </div>
+                    <button class="button button-primary" type="submit" form="profile-form">Save changes</button>
+                </div>
+
+                <div class="uni-card-grid uni-card-grid--profile">
+
+                    <!-- Dark summary card -->
+                    <div class="uni-card uni-card-dark">
+                        <div class="profile-avatar">TC</div>
+                        <h3 class="uni-card-title">Taylor Chen</h3>
+                        <p class="uni-card-subtitle">Team Manager</p>
+                        <div class="permission-badge">✓ University staff</div>
+                        <p class="uni-card-text">Staff access for {{ currentUniversity.uName }}.</p>
+                    </div>
+
+                    <!-- Form card -->
+                    <form class="uni-card" id="profile-form">
+                        <p class="eyebrow">Personal information</p>
+                        <h3 class="uni-card-title">Public profile</h3>
+
+                        <div class="uni-field-grid">
+                            <label class="uni-field">
+                                <span>First name</span>
+                                <input type="text" name="first_name" value="Taylor">
+                            </label>
+                            <label class="uni-field">
+                                <span>Last name</span>
+                                <input type="text" name="last_name" value="Chen">
+                            </label>
+                            <label class="uni-field uni-field-full">
+                                <span>Email address</span>
+                                <input type="email" name="email" value="taylor.chen@shsu.edu">
+                            </label>
+                            <label class="uni-field">
+                                <span>Display name</span>
+                                <input type="text" name="display_name" value="Taylor Chen">
+                            </label>
+                            <label class="uni-field">
+                                <span>Title</span>
+                                <input type="text" name="title" value="Team Manager">
+                            </label>
+                            <label class="uni-field uni-field-full">
+                                <span>Bio</span>
+                                <textarea name="bio" rows="4"></textarea>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Your existing info cards, unchanged -->
+                <div class="uni-card-grid">
+                    <div class="uni-card">
+                        <h3 class="uni-card-title">University Name</h3>
+                        <p class="uni-card-text">{{ currentUniversity.uName }}</p>
+                    </div>
+                    <div class="uni-card">
+                        <h3 class="uni-card-title">State</h3>
+                        <p class="uni-card-text">{{ currentUniversity.uState }}</p>
+                    </div>
+                    <div class="uni-card">
+                        <h3 class="uni-card-title">City</h3>
+                        <p class="uni-card-text">{{ currentUniversity.uCity }}</p>
+                    </div>
+                </div>
             </section>
 
 {% endblock %}
