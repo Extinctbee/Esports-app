@@ -1,7 +1,10 @@
-from flask import Flask, abort, render_template, request
+from flask import Flask, abort, render_template, redirect, url_for, request
 from db import get_connection
 
 app = Flask(__name__)
+
+# Enable only for local demonstrations.
+app.config["DEMO_MODE"] = True
 
 # Default route to display the home page
 @app.route("/")
@@ -15,7 +18,7 @@ def home():
 
             
             # Execute a simple query to check the connection
-            cursor.execute("Select * from University")
+            cursor.execute("Select * from University LIMIT 10")
             rows = cursor.fetchall()
 
         universites = rows
@@ -65,7 +68,8 @@ def university(uID):
 @app.route("/search/")
 def search_university():
     # Get the search query from the request arguments
-    uName = request.args.get("q", "").strip()
+    search = request.args.get("q", "").strip()
+    searchPattern = f"%{search}%"
 
     # Connect to the database
     connection = get_connection()
@@ -73,16 +77,38 @@ def search_university():
     try:
         with connection.cursor() as cursor:
             # Query the database for the university data entity based on the provided UniversityName
-            cursor.execute("Select * from University WHERE uName LIKE %s", (f"%{uName}%",))
-            universities = cursor.fetchall()
+
+            cursor.execute("""
+                SELECT u.*
+                FROM University AS u
+                WHERE
+                    u.uName LIKE %s
+                    OR u.uState LIKE %s
+                    OR u.uCity LIKE %s
+                    OR EXISTS (
+                        SELECT 1
+                        FROM Team AS t
+                        JOIN GameTitle AS g ON t.gtID = g.gtID
+                        WHERE t.uID = u.uID
+                        AND g.gtName LIKE %s
+                    )
+                ORDER BY u.uName
+            """, (
+                searchPattern,
+                searchPattern,
+                searchPattern,
+                searchPattern
+            ))
     finally:
         connection.close()
 
+    universities = cursor.fetchall()
+
     # Verify if the university data entity was found
     if universities is None or len(universities) == 0:
-        abort(404, description=(f"University with name '{uName}' not found. University may not be listed in the hub."))  # Display a 404 error if the university data entity was not found
+        abort(404, description=(f"University with name/state/city/gametitles '{search}' not found. University may not be listed in the hub."))  # Display a 404 error if the university data entity was not found
 
-    return render_template("university_results.html", universities=universities, searchQuery=uName)
+    return render_template("university_results.html", universities=universities, searchQuery=search)
 
 # Route for the Player pages
 @app.route("/player/<int:auID>")
@@ -236,9 +262,117 @@ def teamSeason(sID):
 
 
 # Route for the Join Hub page
-@app.route("/join")
+@app.route("/join", methods=["GET", "POST"])
 def join():
-    return render_template("join.html")
+
+    if request.method == "POST":
+        firstName = request.form.get("first_name", "").strip()
+        lastName = request.form.get("last_name", "").strip()
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password_request", "").strip()
+
+        universityName = request.form.get("university_name", "").strip()
+        universityState = request.form.get("university_state", "").strip()
+        universityCity = request.form.get("university_city", "").strip()
+
+        # Basic server-side validation.
+        if not all((firstName, lastName, email,
+                    universityName, universityState, universityCity)):
+            abort(400, "All fields are required.")
+
+        connection = get_connection()
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO UniversityProfileAccountRequest (
+                        uarFirstName,
+                        uarLastName,
+                        uarEmail,
+                        uarHashPass,
+                        uarUniversityName,
+                        uarState,
+                        uarCity
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    firstName,
+                    lastName,
+                    email,
+                    password,
+                    universityName,
+                    universityState,
+                    universityCity
+                ))
+
+            connection.commit()
+
+        except Exception:
+            connection.rollback()
+            raise
+
+        finally:
+            connection.close()
+
+        # Redirect to the site's homepage after successful insertion.
+        return redirect("/?request_submitted=1")
+
+
+    
+    return render_template("join.html", demo_mode=app.config.get("DEMO_MODE", False))
+
+@app.route("/demo/verify-university-requests", methods=["POST"])
+def force_verify_requests():
+
+    # Never expose this action to regular website visitors.
+    if (not app.config.get("DEMO_MODE")
+            or request.remote_addr not in ("127.0.0.1", "::1")):
+        abort(403)
+
+    connection = get_connection()
+
+    try:
+        with connection.cursor() as cursor:
+
+            # Find requests awaiting approval.
+            cursor.execute("""
+                SELECT uarID, uarUniversityName, uarState, uarCity
+                FROM UniversityProfileAccountRequest
+                WHERE uarStatus = 'Pending'
+                FOR UPDATE
+            """)
+            pendingRequests = cursor.fetchall()
+
+            for universityRequest in pendingRequests:
+
+                # Generate a university profile if it doesn't already exist.
+                cursor.execute("""
+                    INSERT INTO University (uName, uState, uCity)
+                    VALUES (%s, %s, %s)
+                    ON DUPLICATE KEY UPDATE uID = uID
+                """, (
+                    universityRequest["uarUniversityName"],
+                    universityRequest["uarState"],
+                    universityRequest["uarCity"]
+                ))
+
+                # Mark the request as processed.
+                cursor.execute("""
+                    UPDATE UniversityProfileAccountRequest
+                    SET uarStatus = 'Approved'
+                    WHERE uarID = %s
+                """, (universityRequest["uarID"],))
+
+        connection.commit()
+
+    except Exception:
+        connection.rollback()
+        raise
+
+    finally:
+        connection.close()
+
+    return redirect(url_for("join", approved=len(pendingRequests)))
 
 #Keep below all routes for the main application entry point
 #Alternative to running app through CLI command in terminal: python -m flask --app app run --debug

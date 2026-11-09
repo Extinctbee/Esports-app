@@ -5,11 +5,18 @@
 
 {% block content %}
 <div class="page-content">
+    {% if request.args.get('approved') is not none %}
+    <p>
+        Demo verification complete:
+        {{ request.args.get('approved') }} request(s) processed.
+    </p>
+    {% endif %}
+    
     <div class="eyebrow">For programs</div>
     <h1>Request a University Profile</h1>
     <p>Send your information to our development team to request a university profile for verification.</p>
 
-    <form method="post" class="form">
+    <form method="post" action="{{url_for('join')}}" class="form" style="padding-bottom: 50px;">
         <label>
             <span>First name</span>
             <input type="text" id="first_name" name="first_name" autocomplete="given-name" required>
@@ -23,6 +30,10 @@
             <input type="email" id="email" name="email" autocomplete="email" required>
         </label>
         <label>
+        <label>
+            <span>Password</span>
+            <input type="text" id="password_request" name="password_required" autocomplete="new-password" required>
+        </label>
             <span>University name</span>
             <input type="text" id="university_name" name="university_name" autocomplete="organization" required>
         </label>
@@ -37,5 +48,19 @@
 
         <div><button type="submit" class="button button-primary">Submit request</button></div>
     </form>
+
+    {% if demo_mode %}
+    <div class="uni-card">
+        <h3>Developer Demo Tools</h3>
+        <p>Simulate verification and approval of all pending requests.</p>
+
+        <form method="POST"
+              action="{{ url_for('force_verify_requests') }}">
+            <button type="submit" class="button button-primary">
+                Force Verify All Requests (Demo)
+            </button>
+        </form>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

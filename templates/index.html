@@ -7,6 +7,20 @@
 <!-- Block content allows inserting the main content for this page into the base template -->
 {% block content %}
 
+    <!-- Submit Toast Verification -->
+    {% if request.args.get('request_submitted') == '1' %}
+    <div class="request-toast" role="status">
+        University profile request submitted successfully!
+    </div>
+
+    <script>
+        setTimeout(() => {
+            document.querySelector(".request-toast")?.remove();
+        }, 4000);
+    </script>
+    {% endif %}
+
+
     <section class="landing-main">
 
     <img
