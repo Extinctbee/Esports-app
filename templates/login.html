@@ -1,0 +1,26 @@
+
+{% extends "base.html" %}
+
+{% block title %}Join - University Profile Request{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="eyebrow">For Members</div>
+    <h1>Member Sign In</h1>
+    <p>Sign in to your account to access your personalized dashboard.</p>
+
+    <form method="post" class="form">
+    
+        <label>
+            <span>Email address</span>
+            <input type="email" id="email" name="email" autocomplete="email" required>
+        </label>
+        
+        <label>
+            <span>Password</span>
+            <input type="password" id="password" name="password" required>
+        </label>
+        <div><button type="submit" class="button button-primary">Sign in</button></div>
+    </form>
+</div>
+{% endblock %}
