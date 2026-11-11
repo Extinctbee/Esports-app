@@ -32,12 +32,21 @@
         <!-- Sidebar Profile Button -->
         <div class="sidebar-account">
             <button type="button" data-tab="profile" class="sidebar-profile">
-                <span class="profile-avatar">G</span>
-                <span class="profile-info">
-                    <strong>Guest</strong>
-                    <small>View Profile</small>
-                </span>
-                <span class="profile-options">•••</span>
+                {% if g.user %}
+                    <span class="profile-avatar">{{g.user.auFirstName|first}}</span>
+                    <span class="profile-info">
+                        <strong>{{g.user.auFirstName}}</strong>
+                        <small>View Profile</small>
+                    </span>
+                    <span class="profile-options">•••</span>
+                {% else %}
+                    <span class="profile-avatar">G</span>
+                    <span class="profile-info">
+                        <strong>Guest</strong>
+                        <small>View Profile</small>
+                    </span>
+                    <span class="profile-options">•••</span>
+                {% endif %}
             </button>
         </div>
     </aside>

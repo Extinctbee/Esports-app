@@ -1,10 +1,87 @@
-from flask import Flask, abort, render_template, redirect, url_for, request
+from flask import Flask, abort, render_template, redirect, url_for, request, g, session
+import os
+from werkzeug.security import check_password_hash
 from db import get_connection
 
 app = Flask(__name__)
 
 # Enable only for local demonstrations.
 app.config["DEMO_MODE"] = True
+
+# Load user details before requests
+@app.before_request
+def load_logged_in_user():
+    #Clear g configs
+    g.user = None
+    g.userRoles = []
+    g.player = None
+    g.playerRoles = []
+
+    # grab the current account logged in
+    auID = session.get("auID")
+
+    # no user logged in current session
+    if auID is None: 
+        return
+
+    # connecto to fetch
+    connection = get_connection()
+
+    try:
+        with connection.cursor() as cursor:
+            #Get core account user info
+            cursor.execute(
+                "SELECT auID, auFirstName, auLastName, auEmail "
+                "FROM AccountUser WHERE auID = %s",
+                (auID,)
+            )
+            g.user = cursor.fetchone()
+
+            if(g.user): 
+                # Get all university affiliations and roles
+                cursor.execute("""
+                    SELECT *
+                    FROM AccountUniversityRoles
+                    WHERE auID = %s
+                    AND uID IS NOT NULL
+                    ORDER BY uName
+                """, (auID,))
+                g.userRoles = cursor.fetchall()
+
+                # Get team member information, if this account is a TeamMember
+                cursor.execute("""
+                SELECT
+                    tm.auID,
+                    tm.gamerTag,
+                    tm.bio,
+                    tm.major,
+                    gc.discordUser,
+                    gc.epicGamesUser,
+                    gc.riotGamesUser,
+                    gc.steamUser,
+                    gc.twitchUser
+                FROM TeamMember AS tm
+                LEFT JOIN GamerConnections AS gc
+                    ON tm.auID = gc.auID
+                WHERE tm.auID = %s
+                """, (auID,))
+
+                g.player = cursor.fetchone()
+
+                cursor.execute("""
+                SELECT tName, sTitle, tmsTeamRole
+                FROM PlayerSeasons
+                WHERE auID = %s
+                AND sStartDate <= CURDATE()
+                AND (sEndDate IS NULL OR sEndDate >= CURDATE())
+                """, (auID,))
+
+                g.playerRoles = cursor.fetchall()
+            else:
+                session.clear()
+    finally:
+        connection.close()
+
 
 # Default route to display the home page
 @app.route("/")
@@ -21,11 +98,16 @@ def home():
             cursor.execute("Select * from University LIMIT 10")
             rows = cursor.fetchall()
 
-        universites = rows
+        featuredUniversites = rows
     finally:
         connection.close()
 
-    return render_template("index.html", universites=universites)
+    if(app.config["DEMO_MODE"]):
+        if("auID" in session):
+            print(f"Session User ID: {session["auID"]}")
+            print(f"g.User: {g.user["auFirstName"]}")
+
+    return render_template("index.html", universites=featuredUniversites)
 
 # Route For University Profiles.
 @app.route("/university/<int:uID>")
@@ -226,11 +308,14 @@ def teamSeason(sID):
             currentTeam = cursor.fetchone()
 
             # Get the university for the shared sidebar
-            cursor.execute(
-                "SELECT * FROM University WHERE uID = %s",
-                (currentTeam["uID"],)
-            )
-            currentUniversity = cursor.fetchone()
+            if currentTeam is not None:
+                cursor.execute(
+                    "SELECT * FROM University WHERE uID = %s",
+                    (currentTeam["uID"],)
+                )
+                currentUniversity = cursor.fetchone()
+            else:
+                abort(404, "Can not find a team for team with ID: %s", sID)
 
             # Get this season's players
             cursor.execute(
@@ -260,9 +345,75 @@ def teamSeason(sID):
         teamSchedule=teamSchedule
     )
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        # Collect form info
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
+
+        # Connect to DB to query for user
+        connection = get_connection()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT * FROM AccountUser WHERE auEmail = %s",
+                    (email,)
+                )
+                user = cursor.fetchone()
+        finally:
+            connection.close()
+
+        # Verify login information
+        if user and check_password_hash(user["auHashPass"], password):
+
+            # Clear any previous login session
+            session.clear()
+
+            # Save user ID to current flask session
+            session["auID"] = user["auID"]
+
+            # Find universities associated with this account
+            connection = get_connection()
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT uID
+                        FROM AccountUniversityRoles
+                        WHERE auID = %s AND uID IS NOT NULL
+                        ORDER BY uName
+                    """, (user["auID"],))
+
+                    universities = cursor.fetchall()
+            finally:
+                connection.close()
+
+            if(app.config["DEMO_MODE"]):
+                print(f"Succesful Login! User ID: %i", user["auID"])
+
+            # One university: redirect directly to its profile
+            if len(universities) == 1:
+                return redirect(url_for(
+                    "university",
+                    uID=universities[0]["uID"]
+                ))
+            
+            # Multiple universities (or none): go to homepage
+            return redirect("/")
+
+        # Invalid login
+        return render_template(
+            "login.html",
+            error="Invalid email or password."
+        ), 401
+
+    # Else is GET request => render login template
     return render_template("login.html")
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    return redirect(url_for("home"))
 
 # Route for the Join Hub page
 @app.route("/join", methods=["GET", "POST"])
@@ -320,8 +471,6 @@ def join():
         # Redirect to the site's homepage after successful insertion.
         return redirect("/?request_submitted=1")
 
-
-    
     return render_template("join.html", demo_mode=app.config.get("DEMO_MODE", False))
 
 @app.route("/demo/verify-university-requests", methods=["POST"])
@@ -380,5 +529,8 @@ def force_verify_requests():
 #Keep below all routes for the main application entry point
 #Alternative to running app through CLI command in terminal: python -m flask --app app run --debug
 if __name__ == "__main__":
+    app.secret_key = 'esports super secret key'
+    app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY", "fallback-dev-key")
+
     app.run(debug=True)
 

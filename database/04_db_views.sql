@@ -1,3 +1,5 @@
+USE EsportsManagementDB;
+
 -- University Schedule View
 -- Combines university-wide events with matches from all university teams.
 -- Each row includes its university ID for filtering in Flask.
@@ -111,11 +113,75 @@ JOIN TeamSeason AS s ON m.sID = s.sID
 JOIN Team AS t ON s.tID = t.tID
 JOIN GameTitle AS g ON t.gtID = g.gtID;
 
--- View tables
+
+
+-- Account University Roles View
+-- Returns one row per account per associated university.
+-- Combines staff and team member affiliations.
+
+CREATE OR REPLACE VIEW AccountUniversityRoles AS
+SELECT
+    a.auID,
+    a.auFirstName,
+    a.auLastName,
+    a.auEmail,
+
+    u.uID,
+    u.uName,
+
+    MAX(r.teamMemberID) AS teamMemberID,
+    MAX(r.staffMemberID) AS staffMemberID,
+    MAX(r.gamerTag) AS gamerTag,
+    MAX(r.staffRole) AS staffRole
+
+FROM AccountUser AS a
+
+LEFT JOIN (
+    -- Staff university affiliations
+    SELECT
+        sm.auID,
+        sm.uID,
+        NULL AS teamMemberID,
+        sm.auID AS staffMemberID,
+        NULL AS gamerTag,
+        sm.staffRole
+    FROM StaffUniversityMembership AS sm
+
+    UNION ALL
+
+    -- Team member university affiliations
+    SELECT DISTINCT
+        p.auID,
+        t.uID,
+        p.auID AS teamMemberID,
+        NULL AS staffMemberID,
+        p.gamerTag,
+        NULL AS staffRole
+    FROM TeamMember AS p
+    JOIN TeamMembership AS tm ON p.auID = tm.auID
+    JOIN TeamSeason AS ts ON tm.sID = ts.sID
+    JOIN Team AS t ON ts.tID = t.tID
+) AS r ON a.auID = r.auID
+
+LEFT JOIN University AS u ON r.uID = u.uID
+
+GROUP BY
+    a.auID,
+    a.auFirstName,
+    a.auLastName,
+    a.auEmail,
+    u.uID,
+    u.uName;
+
+
+
+
+-- Show Views
 Select * from UniversitySchedule;
 Select * from UniversityPlayers;
 Select * from PlayerSeasons;
 Select * from TeamSeasonMatches;
+Select * from AccountUniversityRoles;
 
 
 

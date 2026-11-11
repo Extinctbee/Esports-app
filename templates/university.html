@@ -119,78 +119,294 @@
                 </div>
             </section>
 
-            <!-- University Profile Section -->
+            <!-- Account Profile Section -->
             <section id="profile" class="university-tab" hidden>
 
                 <div class="uni-tab-header">
                     <div>
                         <p class="eyebrow">Account profile</p>
-                        <h2>Profile settings</h2>
-                        <p class="uni-card-text">Manage how you appear to university staff and team members.</p>
+                        <h2>My Profile</h2>
+                        <p class="uni-card-text">
+                            View your account information and university affiliations.
+                        </p>
                     </div>
-                    <button class="button button-primary" type="submit" form="profile-form">Save changes</button>
+
+                    <button class="button button-primary"
+                                type="submit"
+                                form="profile-form">
+                            Save Changes
+                    </button>
                 </div>
 
-                <div class="uni-card-grid uni-card-grid--profile">
+                {% if g.user %}
 
-                    <!-- Dark summary card -->
-                    <div class="uni-card uni-card-dark">
-                        <div class="profile-avatar">TC</div>
-                        <h3 class="uni-card-title">Taylor Chen</h3>
-                        <p class="uni-card-subtitle">Team Manager</p>
-                        <div class="permission-badge">✓ University staff</div>
-                        <p class="uni-card-text">Staff access for {{ currentUniversity.uName }}.</p>
+                    {% set currentRole = g.userRoles
+                        | selectattr('uID', 'equalto', currentUniversity.uID)
+                        | first %}
+                    
+                    <div style="display: flex; align-items: center; gap: 20px;">
+
+                        {% if not currentRole %}
+                            <p style="color: #dc2626; font-weight: bold; margin: 0;">
+                                ⚠ Your account is not affiliated with
+                                {{ currentUniversity.uName }}.
+                            </p>
+                        {% endif %}
                     </div>
 
-                    <!-- Form card -->
-                    <form class="uni-card" id="profile-form">
-                        <p class="eyebrow">Personal information</p>
-                        <h3 class="uni-card-title">Public profile</h3>
+                    <div class="uni-card-grid uni-card-grid--profile">
 
-                        <div class="uni-field-grid">
-                            <label class="uni-field">
-                                <span>First name</span>
-                                <input type="text" name="first_name" value="Taylor">
-                            </label>
-                            <label class="uni-field">
-                                <span>Last name</span>
-                                <input type="text" name="last_name" value="Chen">
-                            </label>
-                            <label class="uni-field uni-field-full">
-                                <span>Email address</span>
-                                <input type="email" name="email" value="taylor.chen@shsu.edu">
-                            </label>
-                            <label class="uni-field">
-                                <span>Display name</span>
-                                <input type="text" name="display_name" value="Taylor Chen">
-                            </label>
-                            <label class="uni-field">
-                                <span>Title</span>
-                                <input type="text" name="title" value="Team Manager">
-                            </label>
-                            <label class="uni-field uni-field-full">
-                                <span>Bio</span>
-                                <textarea name="bio" rows="4"></textarea>
-                            </label>
+                        <!-- LEFT COLUMN -->
+                        <div>
+
+                            <!-- Account Summary -->
+                            <div style="padding-bottom: 10px;">
+                                <div class="uni-card uni-card-dark">
+
+                                    <div class="profile-avatar">
+                                        {{ g.user.auFirstName|first }}{{ g.user.auLastName|first }}
+                                    </div>
+
+                                    <h3 class="uni-card-title">
+                                        {{ g.user.auFirstName }} {{ g.user.auLastName }}
+                                    </h3>
+
+                                    <p class="uni-card-subtitle">
+                                        {{ g.user.auEmail }}
+                                    </p>
+
+                                    {% if currentRole and currentRole.staffMemberID %}
+                                        <div class="permission-badge">
+                                            ✓ University Staff
+                                        </div>
+                                        <p class="uni-card-text">
+                                            {{ currentRole.staffRole }} at
+                                            {{ currentUniversity.uName }}
+                                        </p>
+
+                                    {% elif currentRole and currentRole.teamMemberID %}
+                                        <div class="permission-badge">
+                                            ✓ Team Member
+                                        </div>
+                                        <p class="uni-card-text">
+                                            Player at {{ currentUniversity.uName }}
+                                        </p>
+
+                                    {% else %}
+                                        <p class="uni-card-text">
+                                            No affiliation with this university.
+                                        </p>
+                                    {% endif %}
+
+                                </div>
+                            </div>
+
+                            <!-- University Affiliations -->
+                            <div class="uni-card">
+
+                                <h3 class="uni-card-title">
+                                    University Affiliations
+                                </h3>
+
+                                {% for affiliation in g.userRoles %}
+
+                                    <div class="uni-card">
+
+                                        <h3 class="uni-card-title">
+                                            {{ affiliation.uName }}
+                                        </h3>
+
+                                        {% if affiliation.staffMemberID %}
+                                            <p class="uni-card-text">
+                                                Staff: {{ affiliation.staffRole }}
+                                            </p>
+                                        {% endif %}
+
+                                        {% if affiliation.teamMemberID %}
+                                            <p class="uni-card-text">
+                                                Team Member
+                                            </p>
+                                        {% endif %}
+
+                                        <a href="{{ url_for('university', uID=affiliation.uID) }}">
+                                            View University
+                                        </a>
+
+                                    </div>
+
+                                {% else %}
+                                    <p class="uni-card-text">
+                                        No university affiliations found.
+                                    </p>
+                                {% endfor %}
+
+                            </div>
+
+                            <!-- Logout -->
+                            <form action="{{ url_for('logout') }}" method="POST">
+                                <div style="text-align: center; padding: 5%;">
+                                    <button class="button button-primary" type="submit">
+                                        Logout
+                                    </button>
+                                </div>
+                            </form>
+
                         </div>
-                    </form>
-                </div>
 
-                <!-- Your existing info cards, unchanged -->
-                <div class="uni-card-grid">
-                    <div class="uni-card">
-                        <h3 class="uni-card-title">University Name</h3>
-                        <p class="uni-card-text">{{ currentUniversity.uName }}</p>
+                        <!-- RIGHT COLUMN: Editable Account Settings -->
+                        <div>
+                            <!-- Single form for all editable profile information -->
+                            <form id="profile-form" method="POST">
+
+                                <!-- Personal Information -->
+                                <div class="uni-card">
+                                    <p class="eyebrow">Personal information</p>
+                                    <h3 class="uni-card-title">Public Profile</h3>
+
+                                    <div class="uni-field-grid">
+                                        <label class="uni-field">
+                                            <span>First name</span>
+                                            <input type="text" name="first_name"
+                                                value="{{ g.user.auFirstName }}" required>
+                                        </label>
+
+                                        <label class="uni-field">
+                                            <span>Last name</span>
+                                            <input type="text" name="last_name"
+                                                value="{{ g.user.auLastName }}" required>
+                                        </label>
+
+                                        <label class="uni-field uni-field-full">
+                                            <span>Email address</span>
+                                            <input type="email" name="email"
+                                                value="{{ g.user.auEmail }}" required>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Team Member Settings -->
+                                {% if g.player %}
+                                    <div class="uni-card">
+                                        <p class="eyebrow">Team Member information</p>
+                                        <h3 class="uni-card-title">Player Settings</h3>
+
+                                        <div class="uni-field-grid">
+                                            <label class="uni-field">
+                                                <span>Display name / Gamer tag</span>
+                                                <input type="text" name="gamer_tag"
+                                                    value="{{ g.player.gamerTag }}" required>
+                                            </label>
+
+                                            <label class="uni-field">
+                                                <span>Major</span>
+                                                <input type="text" name="major"
+                                                    value="{{ g.player.major or '' }}">
+                                            </label>
+
+                                            <label class="uni-field uni-field-full">
+                                                <span>Bio</span>
+                                                <textarea name="bio" rows="4">{{ g.player.bio or '' }}</textarea>
+                                            </label>
+
+
+                                            <label class="uni-field">
+                                                <a href="{{ url_for('player', auID=g.user.auID) }}">View Player Profile</a>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Gamer Connections -->
+                                    <div class="uni-card">
+                                        <p class="eyebrow">Gaming Accounts</p>
+                                        <h3 class="uni-card-title">Gamer Connections</h3>
+
+                                        <p class="uni-card-text">
+                                            Add your gaming usernames to your player profile.
+                                        </p>
+
+                                        <div class="uni-field-grid">
+                                            <label class="uni-field">
+                                                <span>Discord</span>
+                                                <input type="text" name="discord_user"
+                                                    value="{{ g.player.discordUser or '' }}"
+                                                    placeholder="Discord username">
+                                            </label>
+
+                                            <label class="uni-field">
+                                                <span>Epic Games</span>
+                                                <input type="text" name="epic_games_user"
+                                                    value="{{ g.player.epicGamesUser or '' }}"
+                                                    placeholder="Epic Games username">
+                                            </label>
+
+                                            <label class="uni-field">
+                                                <span>Riot Games</span>
+                                                <input type="text" name="riot_games_user"
+                                                    value="{{ g.player.riotGamesUser or '' }}"
+                                                    placeholder="Riot ID">
+                                            </label>
+
+                                            <label class="uni-field">
+                                                <span>Steam</span>
+                                                <input type="text" name="steam_user"
+                                                    value="{{ g.player.steamUser or '' }}"
+                                                    placeholder="Steam username">
+                                            </label>
+
+                                            <label class="uni-field uni-field-full">
+                                                <span>Twitch</span>
+                                                <input type="text" name="twitch_user"
+                                                    value="{{ g.player.twitchUser or '' }}"
+                                                    placeholder="Twitch username">
+                                            </label>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Staff Member Settings -->
+                                {% for affiliation in g.userRoles %}
+                                    {% if affiliation.staffMemberID %}
+                                        <div class="uni-card">
+                                            <p class="eyebrow">Staff Member information</p>
+                                            <h3 class="uni-card-title">Staff Settings</h3>
+
+                                            <div class="uni-field-grid">
+                                                <label class="uni-field uni-field-full">
+                                                    <span>University</span>
+                                                    <p>{{ affiliation.uName }} | Role: {{ affiliation.staffRole }}</p>
+                                                    <a href="{{url_for('university', uID = g.userRoles[0].uID)}}">View University Profile</a>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+
+                            </form>
+                        </div>
+
                     </div>
-                    <div class="uni-card">
-                        <h3 class="uni-card-title">State</h3>
-                        <p class="uni-card-text">{{ currentUniversity.uState }}</p>
+
+                {% else %}
+
+                    <!-- Guest Account -->
+                    <div class="uni-card" style="text-align: center;">
+
+                        <h3 class="uni-card-title">
+                            You're not logged in.
+                        </h3>
+
+                        <p class="uni-card-text">
+                            Sign in to view your account information.
+                        </p>
+
+                        <a class="button button-primary"
+                        href="{{ url_for('login') }}">
+                            Member Sign In
+                        </a>
+
                     </div>
-                    <div class="uni-card">
-                        <h3 class="uni-card-title">City</h3>
-                        <p class="uni-card-text">{{ currentUniversity.uCity }}</p>
-                    </div>
-                </div>
+
+                {% endif %}
+
             </section>
-
 {% endblock %}

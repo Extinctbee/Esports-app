@@ -83,6 +83,22 @@ WHERE t.tName LIKE 'DEMO %'
     WHERE ts.tID = t.tID AND ts.sTitle = 'Fall 2026'
   );
 
+-- Additional historical DEMO season for testing a player's past SHSU membership.
+-- Only the SHSU Rocket League team receives this Spring 2026 season.
+INSERT INTO TeamSeason (tID, sTitle, sFormat, sStartDate, sEndDate, sDescription)
+SELECT t.tID, 'Spring 2026', '3v3',
+       '2026-01-12', '2026-05-15',
+       'DEMO historical season for player affiliation testing'
+FROM Team AS t
+JOIN University AS u ON u.uID = t.uID
+WHERE u.uName = 'Sam Houston State University'
+  AND t.tName = 'DEMO SHSU Rocket League'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM TeamSeason AS ts
+      WHERE ts.tID = t.tID AND ts.sTitle = 'Spring 2026'
+  );
+
 -- Fictional matches for the DEMO team seasons.
 -- Match times differ by game; opponents are placeholders, not actual scheduled opponents.
 -- Existing DEMO matches are preserved when the seed is rerun.

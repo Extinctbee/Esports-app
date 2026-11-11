@@ -177,13 +177,25 @@ FROM demo_seed_student AS s
 JOIN AccountUser AS au ON au.auEmail = s.auEmail
 WHERE NOT EXISTS (SELECT 1 FROM TeamMember AS tm WHERE tm.auID = au.auID);
 
--- Attach fictional staff to their university.
-INSERT INTO StaffMember (auID, uID, staffRole)
+-- Create fictional StaffMember subtype records.
+INSERT INTO StaffMember (auID)
+SELECT au.auID
+FROM demo_seed_staff AS s
+JOIN AccountUser AS au ON au.auEmail = s.auEmail
+WHERE NOT EXISTS (
+    SELECT 1 FROM StaffMember AS sm WHERE sm.auID = au.auID
+);
+
+-- Connect each fictional staff account to its university via the junction table.
+INSERT INTO StaffUniversityMembership (auID, uID, staffRole)
 SELECT au.auID, u.uID, 'Esports Coordinator'
 FROM demo_seed_staff AS s
 JOIN AccountUser AS au ON au.auEmail = s.auEmail
 JOIN University AS u ON u.uName = s.schoolName
-WHERE NOT EXISTS (SELECT 1 FROM StaffMember AS sm WHERE sm.auID = au.auID);
+WHERE NOT EXISTS (
+    SELECT 1 FROM StaffUniversityMembership AS smu
+    WHERE smu.auID = au.auID AND smu.uID = u.uID
+);
 
 -- Ensure each DEMO team has a Fall 2026 season before assigning its roster.
 -- Some versions of 02_seed_cusa_minimal.sql contain only universities/teams and no TeamSeason rows.
@@ -225,7 +237,7 @@ SELECT u.uID, sm.auID, announcements.title, announcements.info, announcements.po
 FROM demo_seed_staff AS s
 JOIN University AS u ON u.uName = s.schoolName
 JOIN AccountUser AS au ON au.auEmail = s.auEmail
-JOIN StaffMember AS sm ON sm.auID = au.auID AND sm.uID = u.uID
+JOIN StaffUniversityMembership AS sm ON sm.auID = au.auID AND sm.uID = u.uID
 CROSS JOIN (
   SELECT 'DEMO Fall 2026 Rosters Published' AS title,
          'Our fictional Rocket League and Valorant rosters are ready to browse. These are sample profiles for website testing.' AS info,
@@ -262,6 +274,78 @@ WHERE NOT EXISTS (
   WHERE ue.uID = u.uID AND ue.ueTitle = events.title
     AND ue.ueStartDate = events.starts
 );
+
+-- Multi-affiliation DEMO account: nyx.
+-- This is a LOCAL TEST credential only: do not deploy it as a real account.
+-- Username/email: demo.nyx@example.test    Password: NyxDemo2026!
+-- Staff at SHSU and NMSU; player on both universities' DEMO RL and Valorant teams
+-- in Fall 2026, plus SHSU Rocket League during Spring 2026.
+
+INSERT INTO AccountUser (auFirstName, auLastName, auEmail, auHashPass)
+SELECT 'Nate', 'Demo', 'demo.nyx@example.test',
+       'pbkdf2:sha256:600000$9679b395c57324b2e433$7c17a994c219506693730d0e922bc0e639c516a6f8784052e50e7ab6f3aedcfe'
+WHERE NOT EXISTS (
+    SELECT 1 FROM AccountUser WHERE auEmail = 'demo.nyx@example.test'
+);
+
+INSERT INTO StaffMember (auID)
+SELECT au.auID
+FROM AccountUser AS au
+WHERE au.auEmail = 'demo.nyx@example.test'
+  AND NOT EXISTS (
+      SELECT 1 FROM StaffMember AS sm WHERE sm.auID = au.auID
+  );
+
+INSERT INTO StaffUniversityMembership (auID, uID, staffRole)
+SELECT au.auID, u.uID, 'Esports Coordinator'
+FROM AccountUser AS au
+JOIN University AS u
+  ON u.uName IN ('Sam Houston State University', 'New Mexico State University')
+WHERE au.auEmail = 'demo.nyx@example.test'
+  AND NOT EXISTS (
+      SELECT 1 FROM StaffUniversityMembership AS smu
+      WHERE smu.auID = au.auID AND smu.uID = u.uID
+  );
+
+INSERT INTO TeamMember (auID, gamerTag, bio, major)
+SELECT au.auID, 'nyx',
+       'Fictional multi-university, multi-season test player.',
+       'Software Engineering'
+FROM AccountUser AS au
+WHERE au.auEmail = 'demo.nyx@example.test'
+  AND NOT EXISTS (
+      SELECT 1 FROM TeamMember AS p WHERE p.auID = au.auID
+  );
+
+-- 5 memberships: 4 Fall 2026 (both games at SHSU/NMSU)
+-- + 1 historical Spring 2026 (SHSU Rocket League).
+INSERT INTO TeamMembership (auID, sID, tmsTeamRole, tmsJoinDate, tmsEndDate)
+SELECT au.auID, ts.sID, 'Starter', ts.sStartDate,
+       CASE WHEN ts.sTitle = 'Spring 2026' THEN ts.sEndDate ELSE NULL END
+FROM AccountUser AS au
+JOIN TeamMember AS p ON p.auID = au.auID
+CROSS JOIN TeamSeason AS ts
+JOIN Team AS t ON t.tID = ts.tID
+WHERE au.auEmail = 'demo.nyx@example.test'
+  AND (
+      (
+          ts.sTitle = 'Fall 2026'
+          AND t.tName IN (
+              'DEMO SHSU Rocket League',
+              'DEMO SHSU Valorant',
+              'DEMO NMSU Rocket League',
+              'DEMO NMSU Valorant'
+          )
+      )
+      OR (
+          ts.sTitle = 'Spring 2026'
+          AND t.tName = 'DEMO SHSU Rocket League'
+      )
+  )
+  AND NOT EXISTS (
+      SELECT 1 FROM TeamMembership AS m
+      WHERE m.auID = au.auID AND m.sID = ts.sID
+  );
 
 COMMIT;
 

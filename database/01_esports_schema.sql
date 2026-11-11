@@ -1,5 +1,5 @@
 -- 01_schema.sql
--- Destructive INITIAL SETUP / RESET only: drops the database and recreates all 14 tables.
+-- Destructive INITIAL SETUP / RESET only: drops the database and recreates all 15 tables.
 -- All example data is intentionally moved into 02_seed_cusa_demo.sql.
 -- DO NOT execute this on an existing database you intend to preserve.
 
@@ -72,20 +72,34 @@ auEmail varchar(100) NOT NULL UNIQUE,
 auHashPass varchar(255) NOT NULL
 );
 
-# Create Staff Member ("Is A" AccountUser; University EMPLOYS Staff 1:M)
-create table StaffMember(
-auID int primary key,
-uID int NOT NULL,
-staffRole varchar(50) NOT NULL,
- 
+# Create Staff Member ("Is A" AccountUser)
+CREATE TABLE StaffMember (
+    auID INT PRIMARY KEY,
+
     CONSTRAINT fk_staff_accountuser
     FOREIGN KEY (auID)
     REFERENCES AccountUser(auID)
+    ON DELETE CASCADE
+);
+
+# Staff Member affiliate with multiple Universities (M:N)
+CREATE TABLE StaffUniversityMembership (
+    smID INT PRIMARY KEY AUTO_INCREMENT,
+    auID INT NOT NULL,
+    uID INT NOT NULL,
+    staffRole VARCHAR(50) NOT NULL,
+
+    CONSTRAINT fk_staffmembership_staff
+    FOREIGN KEY (auID)
+    REFERENCES StaffMember(auID)
     ON DELETE CASCADE,
- 
-    CONSTRAINT fk_staff_university
+
+    CONSTRAINT fk_staffmembership_university
     FOREIGN KEY (uID)
     REFERENCES University(uID)
+    ON DELETE CASCADE,
+
+    CONSTRAINT uq_staff_university UNIQUE (auID, uID)
 );
 
 # Create Team Member ("Is A" AccountUser)
