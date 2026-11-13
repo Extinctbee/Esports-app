@@ -122,6 +122,7 @@ a { color: inherit; }
 .university-profile { display: grid; grid-template-columns: 248px minmax(0, 1fr); align-items: start;}
 .university-profile h2 { font: 800 clamp(30px, 4vw, 44px)/1 "Barlow Condensed"; text-transform: uppercase; margin: 0 0 18px; }
 .university-profile h3 { font: 700 18px "Barlow Condensed"; color: #b8b7b2; margin: 6px 0; }
+.university-profile .uni-card-title { font: 700 22px/1.2 "Barlow Condensed", sans-serif; text-transform: none; margin: 0 0 12px; }
 .university-profile-content { background-color: #EAE8E2 ; color: #141413; min-width: 0; padding: none; }
 .university-profile-content h2, .university-profile-content h3 { color: #141413; }
 .university-topbar { background: white; padding: 16px 24px; }
@@ -131,21 +132,47 @@ a { color: inherit; }
 .university-sidebar li { margin-bottom: 8px; }
 .university-sidebar button { display: block; width: 100%; padding: 12px; border: 0; border-radius: 5px; background: #ffffff18; color: white; text-align: left;}
 .university-sidebar button:hover { background: #f3f1f148; }
-/*.university-logo img { width: 30px;  height: 30px; object-fit: contain; flex-shrink: 0; }*/
-.university-sidebar .university-logo {
-    display: block;
-    width: 60px;
-    height: 60px;
-    max-width: 60px;
-    max-height: 60px;
-    object-fit: contain;
-}
+.university-sidebar .university-logo { display: block; width: 60px; height: 60px; max-width: 60px; max-height: 60px; object-fit: contain;}
 .sidebar-account { margin-top: auto;  padding-top: 16px; border-top: 1px solid #ffffff20;}
 .university-sidebar .sidebar-profile { display: flex; align-items: center; gap: 10px; width: 100%;}
 .profile-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--orange); color: white; display: grid; place-items: center; font-weight: 700; flex-shrink: 0; }
 .profile-info { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
 .profile-info small { color: #b8b7b2; font-size: 10px; }
 .profile-options { margin-left: auto; }
+
+/* ---------- Team Profile ---------- */
+.status-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; background: var(--paper); color: var(--muted); font-size: 11px; font-weight: 700; }
+.status-active { background: #e8f3eb; color: #28633b; }
+.status-upcoming { background: #fff0e5; color: #994510; }
+.status-scheduled { background: #fff0e5; color: #994510; }
+.status-completed { background: #e8f3eb; color: #28633b; }
+.status-cancelled { background: #faeaea; color: #9b3535; }
+.team-season-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.team-season-info { flex: 1 1 400px; min-width: 0; }
+.team-season-header > .button { flex-shrink: 0; }
+.match-list { display: grid; gap: 12px; margin-top: 16px; }
+.match-card { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+.match-info { flex: 1 1 220px; min-width: 0; overflow-wrap: anywhere; }
+.match-info .uni-card-title { margin: 0 0 8px; }
+.match-location { color: var(--muted); }
+.match-result { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; margin-left: auto; }
+.match-score { font: 700 30px/1 "Barlow Condensed", sans-serif; color: var(--ink); }
+
+
+/* ---------- Player Profile ---------- */
+.team-history-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.team-history-list > li > a { display: block; text-decoration: none; }
+.team-history-item { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.team-history-item > span { flex-shrink: 0; }
+.player-details { margin: 0; padding-top: 16px; border-top: 1px solid var(--line); display: grid; gap: 16px; font-size: 13px; line-height: 1.6; }
+.player-details dt { color: var(--muted); font-size: 16px; font-weight: 700; }
+.player-details dd { margin: 4px 0 0; overflow-wrap: anywhere; }
+.player-connections { gap: 0; padding-top: 4px; }
+.player-connections > div { display: grid; grid-template-columns: 90px minmax(0, 1fr); align-items: baseline; gap: 12px; padding: 10px 0; }
+.player-connections > div + div { border-top: 1px solid var(--line); }
+.player-connections dd { margin: 0; text-align: right; }
+.connection-empty { color: var(--muted); }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 760px) {
   .landing-main { padding-inline: 5vw; }

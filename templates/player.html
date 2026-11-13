@@ -18,35 +18,67 @@
                 <div class="uni-card-grid">
                     
                     <div class="uni-card">
-                        <h3 class="uni-card-title">Team Member Information</h3>
-                        <p class="uni-card-text">About {{ currentPlayer.gamerTag }}</p>
-                        <line>___________________________________________</line>
-                        <p class="uni-card-text">Major: {{ currentPlayer.major }}</p>
-                        <p class="uni-card-text">Bio: {{ currentPlayer.bio }}</p>
-                    </div>
-                    <div class="uni-card">
-                        <h3 class="uni-card-title">Gamer Connections</h3>
-                        <p class="uni-card-text"> Discord: {{ gamerConnections.discordUser or 'N/A' }}</p>
-                        <p class="uni-card-text"> Twitch: {{ gamerConnections.twitchUser or 'N/A'  }}</p>
-                        <p class="uni-card-text"> Steam: {{ gamerConnections.epicGamesUser or 'N/A' }}</p>
-                        <p class="uni-card-text"> Twitter: {{ gamerConnections.riotGamesUser or 'N/A'  }}</p>
-                        <p class="uni-card-text"> Riot Games: {{ gamerConnections.steamUser or 'N/A'  }}</p>
-                    </div>
-                    <div class="uni-card">
-                        <h3 class="uni-card-title">Team History</h3>
-                        <ul class="uni-card-text">
-                            {% for team in teams %}
+                        <p class="eyebrow">About {{ currentPlayer.gamerTag }}</p>
+                        <h2 class="uni-card-title">Team Member Information</h2>
 
-                                <li>
-                                    
-                                    <a href="{{ url_for('team', tID=team.tID) }}">
-                                        <div class="uni-card">
-                                            {{ team.tName }} ({{ team.gtName }})
-                                        </div>
-                                    </a>
-                                </li>
+                        <dl class="player-details">
+                            <div style="display: flex; gap: 10px;">
+                                <dt>Major:</dt>
+                                <dd>{{ currentPlayer.major or 'Not specified' }}</dd>
+                            </div>
+                            <div>
+                                <dt>Bio:</dt>
+                                <dd>{{ currentPlayer.bio or 'No bio added yet.' }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <div class="uni-card">
+                        <p class="eyebrow">Connections</p>
+                        <h2 class="uni-card-title">Gamer Connections</h2>
+
+                        <dl class="player-details player-connections">
+                            {% for label, username in [
+                                ('Discord', gamerConnections.discordUser),
+                                ('Twitch', gamerConnections.twitchUser),
+                                ('Steam', gamerConnections.steamUser),
+                                ('Epic Games', gamerConnections.epicGamesUser),
+                                ('Riot Games', gamerConnections.riotGamesUser)]
+                            %}
+                                <div>
+                                    <dt>{{ label }}</dt>
+                                    <dd class="{{ 'connection-empty' if not username else '' }}">
+                                        {{ username or 'Not added' }}
+                                    </dd>
+                                </div>
                             {% endfor %}
-                        </ul>
+                        </dl>
+                    </div>
+                    <div class="uni-card">
+                        <p class="eyebrow">Team history</p>
+                        <h2 class="uni-card-title">Team memberships</h2>
+                        {% for schoolTeams in teams | groupby('uID') %}
+                            <h3 class="eyebrow" style="color: var(--muted);">{{ schoolTeams.list[0].uName }}</h3>
+
+                            <ul class="team-history-list" style="padding-bottom: 10px;">
+                                {% for team in schoolTeams.list %}
+                                    <li>
+                                        <a href="{{ url_for('teamSeason', sID=team.sID) }}">
+                                            <div class="uni-card team-history-item">
+                                                <div>
+                                                    <h3>{{ team.tName }}</h3>
+                                                    <p>{{ team.gtName }}</p>
+                                                </div>
+
+                                                <span>{{ team.sTitle }}</span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No team history listed.</p>
+                        {% endfor %}
                     </div>
                 </div>
             </section>

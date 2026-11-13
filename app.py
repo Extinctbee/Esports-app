@@ -1,4 +1,4 @@
-from flask import Flask, abort, render_template, redirect, url_for, request, g, session
+from flask import Flask, abort, config, render_template, redirect, url_for, request, g, session
 import os
 from werkzeug.security import check_password_hash
 from db import get_connection
@@ -123,11 +123,11 @@ def university(uID):
             university = cursor.fetchone()
 
             #Fetch all teams associated with the university
-            numRowsAffected = cursor.execute( "SELECT t.tID, t.tName, t.tSkillLevel, g.gtName FROM Team AS t JOIN GameTitle AS g ON t.gtID = g.gtID WHERE t.uID = %s ORDER BY g.gtName, t.tName", (uID,))
+            numRowsAffected = cursor.execute( "SELECT Distinct t.tID, t.tName, t.tSkillLevel, g.gtName FROM Team AS t JOIN GameTitle AS g ON t.gtID = g.gtID WHERE t.uID = %s ORDER BY g.gtName, t.tName", (uID,))
             teams = cursor.fetchall()
 
             #Fetch all active players associated with the university's teams
-            cursor.execute("Select * from UniversityPlayers WHERE uID = %s  ORDER BY gtName, tName, gamerTag", (uID,))
+            cursor.execute("Select Distinct uID, auID, gamerTag, major, auFirstName, auLastName from UniversityPlayers WHERE uID = %s  ORDER BY gamerTag", (uID,))
             activePlayers = cursor.fetchall()
 
             #fetch all university updates associated with the university
@@ -208,14 +208,31 @@ def player(auID):
 
             #Fetch all teams associated with the player
             numRowsAffected = cursor.execute("""
-                SELECT t.tID, t.tName, t.tSkillLevel, g.gtName
-                FROM Team AS t
-                JOIN GameTitle AS g ON t.gtID = g.gtID
-                JOIN TeamSeason AS ts ON t.tID = ts.tID
-                JOIN TeamMembership AS tm ON ts.sID = tm.sID
-                WHERE tm.auID = %s
-                ORDER BY g.gtName, t.tName
-            """, (auID,))
+                                SELECT
+                                    u.uID,
+                                    u.uName,
+                                    t.tID,
+                                    t.tName,
+                                    t.tSkillLevel,
+                                    g.gtName,
+                                    ts.sID,
+                                    ts.sTitle,
+                                    ts.sStartDate,
+                                    tm.tmsTeamRole
+                                FROM TeamMembership AS tm
+                                JOIN TeamSeason AS ts ON tm.sID = ts.sID
+                                JOIN Team AS t ON ts.tID = t.tID
+                                JOIN University AS u ON t.uID = u.uID
+                                JOIN GameTitle AS g ON t.gtID = g.gtID
+                                WHERE tm.auID = %s
+                                ORDER BY
+                                    u.uName,
+                                    u.uID,
+                                    ts.sStartDate DESC,
+                                    ts.sID DESC,
+                                    g.gtName,
+                                    t.tName
+                            """, (auID,))
             teams = cursor.fetchall()
 
             numRowsAffected = cursor.execute("SELECT uID FROM universityPlayers where auID = %s", (auID,))
@@ -254,31 +271,66 @@ def team(tID):
             numRowsAffected = cursor.execute("SELECT * FROM Team WHERE tID = %s", (tID,))
             team = cursor.fetchone()
 
-            #Fetch all players associated with the team
-            numRowsAffected = cursor.execute("Select * From UniversityPlayers where tID = %s", (tID,))
+            #Verify if the team data entity was found
+            if team is None:
+                abort(404, description=(f"Team with ID '{tID}' not found."))  # Display a 404 error if the team data entity was not found
+
+            #Fetch all players associated with the team, marked as: [active / former / upcoming / unknown ] status per player
+            cursor.execute("""
+                SELECT *
+                FROM TeamPlayerStatuses
+                WHERE tID = %s
+                ORDER BY
+                    FIELD(playerStatus, 'Active', 'Upcoming', 'Former', 'Unknown'),
+                    gamerTag
+            """, (tID,))
             players = cursor.fetchall()
 
             #Fetch the university associated with the team
             numRowsAffected = cursor.execute("SELECT uID FROM Team WHERE tID = %s", (tID,))
             universityID = cursor.fetchone()
-            numRowsAffected = cursor.execute("SELECT * FROM University WHERE uID = %s", (universityID['uID'],)) if universityID else None
+            numRowsAffected = cursor.execute("SELECT * FROM University WHERE uID = %s", (team['uID'],)) if universityID else None
             teamUniversity = cursor.fetchone()
 
+            #Fetch game title associated with the team
+            gtID = team["gtID"]
+            numRowsAffected = cursor.execute("SELECT  gt.gtID, gt.gtName, gt.gtGenre FROM gameTitle as gt join team as t on %s = gt.gtID Limit 1", (gtID,))
+            game = cursor.fetchone()
+
             #Fetch all team events
-            numRowsAffected = cursor.execute("Select * from TeamSeasonMatches Where tID = %s AND mStartDate >= CURDATE()", (tID,))
+            cursor.execute("""
+                    SELECT *
+                    FROM TeamSeasonMatches
+                    WHERE tID = %s AND mStartDate >= CURDATE()
+                    ORDER BY mStartDate ASC
+                """, (tID,))
             teamSchedule = cursor.fetchall()
 
-            #Fetch all teams seasons
-            numRowsAffected = cursor.execute("Select * from TeamSeason where tID = %s", (tID,))
+            #Fetch all teams seasons, mark as: [Upcoming, Active, Completed, Unknown]
+            numRowsAffected = cursor.execute("""
+                                SELECT *,
+                                    CASE
+                                        WHEN sEndDate < CURDATE() THEN 'Completed'
+                                        WHEN sStartDate > CURDATE() THEN 'Upcoming'
+                                        WHEN sStartDate <= CURDATE()
+                                            AND (sEndDate IS NULL OR sEndDate >= CURDATE())
+                                            THEN 'Active'
+                                        ELSE 'Unknown'
+                                    END AS seasonStatus
+                                FROM TeamSeason
+                                WHERE tID = %s
+                                ORDER BY sStartDate DESC
+                            """, (tID,))
             teamsSeasons = cursor.fetchall()
+
+            activeSeasons = [s for s in teamsSeasons if s["seasonStatus"] == "Active"]
+            formerSeasons = [s for s in teamsSeasons if s["seasonStatus"] == "Completed"]
+            upcomingSeasons = [s for s in teamsSeasons if s["seasonStatus"] == "Upcoming"]
     finally:
         connection.close()
 
-    #Verify if the team data entity was found
-    if team is None:
-        abort(404, description=(f"Team with ID '{tID}' not found."))  # Display a 404 error if the team data entity was not found
-
-    return render_template("team.html", currentTeam=team, players=players, currentUniversity=teamUniversity, teamSchedule = teamSchedule, teamsSeasons = teamsSeasons)
+    return render_template("team.html", currentTeam=team, players=players, currentUniversity=teamUniversity, teamSchedule = teamSchedule, 
+                           activeSeasons = activeSeasons, formerSeasons =formerSeasons, upcomingSeasons = upcomingSeasons, game = game)
 
 # Route for a specific team's season page
 @app.route("/team/season/<int:sID>")

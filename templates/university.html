@@ -87,13 +87,12 @@
             <section id="members" class="university-tab" hidden>
                 <h2>Members ({{ activePlayers|length }})</h2>
                 {% for player in activePlayers %}
-                    <a href="{{ url_for('player', auID=player.auID) }}">
                         <div class="uni-card">
-                            <h4>{{ player.gamerTag }}</h4>
-                            <p>Game: {{ player.gtName }}</p>
-                            <p>Role: {{ player.tmsTeamRole or 'Not specified' }}</p>
+                            <div style="display: flex; align-items: baseline; gap: 10px;"><h4>{{ player.gamerTag }}</h4> <p> | Major: {%if player.major%} {{player.major}} {%else%} N/A {%endif%}</p></div>
+                            
+                            <p> <a href="{{url_for('player', auID = player.auID)}}"> View Player Profile</a></p>
                         </div>
-                    </a>
+                    
                 {% else %}
                     <p>No active players currently listed for this university.</p>
                 {% endfor %}

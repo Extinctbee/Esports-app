@@ -77,6 +77,8 @@ SELECT
     p.gamerTag,
     tm.tmsID,
     tm.tmsTeamRole,
+    tm.tmsJoinDate,
+    tm.tmsEndDate,
     s.sID,
     s.sTitle,
     s.sFormat,
@@ -96,6 +98,31 @@ JOIN TeamMembership AS tm ON p.auID = tm.auID
 JOIN TeamSeason AS s ON tm.sID = s.sID
 JOIN Team AS t ON s.tID = t.tID
 JOIN GameTitle AS g ON t.gtID = g.gtID;
+
+CREATE OR REPLACE VIEW TeamPlayerStatuses AS
+SELECT
+    tID,
+    auID,
+    gamerTag,
+    CASE
+        WHEN MAX(
+            sStartDate <= CURDATE()
+            AND (sEndDate IS NULL OR sEndDate >= CURDATE())
+            AND (tmsJoinDate IS NULL OR tmsJoinDate <= CURDATE())
+            AND (tmsEndDate IS NULL OR tmsEndDate >= CURDATE())
+        ) = 1 THEN 'Active'
+        WHEN MAX(
+            sEndDate < CURDATE()
+            OR tmsEndDate < CURDATE()
+        ) = 1 THEN 'Former'
+        WHEN MAX(
+            sStartDate > CURDATE()
+            OR tmsJoinDate > CURDATE()
+        ) = 1 THEN 'Upcoming'
+        ELSE 'Unknown'
+    END AS playerStatus
+FROM PlayerSeasons
+GROUP BY tID, auID, gamerTag;
 
 -- Team Season Matches View
 -- Gets all matches associated with a team's seasons,
@@ -180,6 +207,7 @@ GROUP BY
 Select * from UniversitySchedule;
 Select * from UniversityPlayers;
 Select * from PlayerSeasons;
+Select * from TeamPlayerStatuses;
 Select * from TeamSeasonMatches;
 Select * from AccountUniversityRoles;
 

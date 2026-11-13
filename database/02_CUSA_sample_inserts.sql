@@ -118,6 +118,58 @@ WHERE t.tName LIKE 'DEMO %'
     WHERE m.sID = ts.sID AND m.mOpponent = 'DEMO Opponent'
   );
 
+-- Completed fictional SHSU Rocket League series for results-card testing.
+-- Scores are series wins (team first); includes wins, losses, and a zero score.
+INSERT INTO TeamMatch (
+    sID, mOpponent, mStartDate, mLocation,
+    mStatus, mTeamScore, mOpponentScore, mStreamURL, mInfo
+)
+SELECT ts.sID, demo.opponent, demo.starts, 'Online',
+       'Completed', demo.teamScore, demo.opponentScore,
+       CASE WHEN demo.opponent IN ('DEMO Comets', 'DEMO Pulsars')
+            THEN 'https://www.twitch.tv/heyitsnateirl' ELSE NULL END,
+       'Fictional completed series for demo results testing; not an official result.'
+FROM (
+    SELECT 'Fall 2026' AS seasonTitle, 'DEMO Comets' AS opponent,
+           '2026-10-15 18:00:00' AS starts, 3 AS teamScore, 1 AS opponentScore
+    UNION ALL SELECT 'Fall 2026', 'DEMO Meteors', '2026-10-22 18:00:00', 2, 3
+    UNION ALL SELECT 'Fall 2026', 'DEMO Nebulas', '2026-11-05 18:00:00', 3, 0
+    UNION ALL SELECT 'Spring 2026', 'DEMO Pulsars', '2026-03-12 18:00:00', 3, 2
+    UNION ALL SELECT 'Spring 2026', 'DEMO Quasars', '2026-04-09 18:00:00', 0, 3
+) AS demo
+JOIN TeamSeason AS ts ON ts.sTitle = demo.seasonTitle
+JOIN Team AS t ON t.tID = ts.tID
+JOIN University AS u ON u.uID = t.uID
+JOIN GameTitle AS g ON g.gtID = t.gtID
+WHERE u.uName = 'Sam Houston State University'
+  AND t.tName = 'DEMO SHSU Rocket League'
+  AND g.gtName = 'Rocket League'
+  AND NOT EXISTS (
+      SELECT 1 FROM TeamMatch AS m
+      WHERE m.sID = ts.sID AND m.mOpponent = demo.opponent
+        AND m.mStartDate = demo.starts
+  );
+
+-- Backfill the two stream links if these demo matches were seeded previously.
+-- This is a channel link for UI testing, not a recording of the fictional match.
+UPDATE TeamMatch AS m
+JOIN TeamSeason AS ts ON ts.sID = m.sID
+JOIN Team AS t ON t.tID = ts.tID
+JOIN University AS u ON u.uID = t.uID
+JOIN GameTitle AS g ON g.gtID = t.gtID
+SET m.mStreamURL = 'https://www.twitch.tv/heyitsnateirl'
+WHERE u.uName = 'Sam Houston State University'
+  AND t.tName = 'DEMO SHSU Rocket League'
+  AND g.gtName = 'Rocket League'
+  AND (m.mStreamURL IS NULL OR m.mStreamURL = '')
+  AND (
+      (ts.sTitle = 'Fall 2026' AND m.mOpponent = 'DEMO Comets'
+       AND m.mStartDate = '2026-10-15 18:00:00')
+      OR
+      (ts.sTitle = 'Spring 2026' AND m.mOpponent = 'DEMO Pulsars'
+       AND m.mStartDate = '2026-03-12 18:00:00')
+  );
+
 -- Fictional university-wide events to test the combined schedule.
 -- These belong to University, not to individual teams; no staff/accounts are required.
 INSERT INTO UniversityEvent (uID, ueTitle, ueEventType, ueStartDate, ueEndDate, ueLocation, ueInfo)
@@ -165,3 +217,5 @@ WHERE t.tName LIKE 'DEMO %' AND m.mOpponent = 'DEMO Opponent';
 SELECT COUNT(*) AS demo_university_event_count
 FROM UniversityEvent
 WHERE ueTitle = 'DEMO Esports Open House';
+
+

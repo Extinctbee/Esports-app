@@ -317,6 +317,60 @@ WHERE au.auEmail = 'demo.nyx@example.test'
       SELECT 1 FROM TeamMember AS p WHERE p.auID = au.auID
   );
 
+-- Historical-only SHSU Rocket League players (no Fall 2026 memberships).
+-- Ensure Spring exists before adding nyx and the historical roster.
+INSERT INTO TeamSeason (tID, sTitle, sFormat, sStartDate, sEndDate, sDescription)
+SELECT t.tID, 'Spring 2026', '3v3', '2026-01-12', '2026-05-08',
+       'Fictional historical season for former-player testing.'
+FROM Team AS t
+JOIN University AS u ON u.uID = t.uID
+JOIN GameTitle AS g ON g.gtID = t.gtID
+WHERE u.uName = 'Sam Houston State University'
+  AND t.tName = 'DEMO SHSU Rocket League' AND g.gtName = 'Rocket League'
+  AND NOT EXISTS (
+      SELECT 1 FROM TeamSeason AS s
+      WHERE s.tID = t.tID AND s.sTitle = 'Spring 2026'
+  );
+
+CREATE TEMPORARY TABLE demo_seed_shsu_past (
+    email VARCHAR(100), firstName VARCHAR(50), gamerTag VARCHAR(50)
+);
+INSERT INTO demo_seed_shsu_past VALUES
+('demo.past.shsu.orbit@example.test', 'Orbit', 'DEMO_SHSU_Orbit'),
+('demo.past.shsu.echo@example.test', 'Echo', 'DEMO_SHSU_Echo');
+
+INSERT INTO AccountUser (auFirstName, auLastName, auEmail, auHashPass)
+SELECT p.firstName, 'Demo', p.email, 'DEMO_ONLY_NOT_A_PASSWORD_HASH'
+FROM demo_seed_shsu_past AS p
+WHERE NOT EXISTS (SELECT 1 FROM AccountUser AS a WHERE a.auEmail = p.email);
+
+INSERT INTO TeamMember (auID, gamerTag, bio, major)
+SELECT a.auID, p.gamerTag,
+       'Fictional Spring 2026 SHSU Rocket League player; did not return in Fall.',
+       'Computer Science'
+FROM demo_seed_shsu_past AS p
+JOIN AccountUser AS a ON a.auEmail = p.email
+WHERE NOT EXISTS (SELECT 1 FROM TeamMember AS m WHERE m.auID = a.auID);
+
+INSERT INTO TeamMembership (auID, sID, tmsTeamRole, tmsJoinDate, tmsEndDate)
+SELECT a.auID, s.sID, 'Starter', s.sStartDate, s.sEndDate
+FROM demo_seed_shsu_past AS p
+JOIN AccountUser AS a ON a.auEmail = p.email
+JOIN TeamMember AS m ON m.auID = a.auID
+CROSS JOIN TeamSeason AS s
+JOIN Team AS t ON t.tID = s.tID
+JOIN University AS u ON u.uID = t.uID
+JOIN GameTitle AS g ON g.gtID = t.gtID
+WHERE u.uName = 'Sam Houston State University'
+  AND t.tName = 'DEMO SHSU Rocket League'
+  AND g.gtName = 'Rocket League' AND s.sTitle = 'Spring 2026'
+  AND NOT EXISTS (
+      SELECT 1 FROM TeamMembership AS existing
+      WHERE existing.auID = a.auID AND existing.sID = s.sID
+  );
+
+DROP TEMPORARY TABLE demo_seed_shsu_past;
+
 -- 5 memberships: 4 Fall 2026 (both games at SHSU/NMSU)
 -- + 1 historical Spring 2026 (SHSU Rocket League).
 INSERT INTO TeamMembership (auID, sID, tmsTeamRole, tmsJoinDate, tmsEndDate)
@@ -390,4 +444,5 @@ JOIN TeamSeason AS ts ON ts.tID = t.tID AND ts.sTitle = 'Fall 2026'
 LEFT JOIN TeamMembership AS m ON m.sID = ts.sID
 GROUP BY u.uID, u.uName, g.gtName, t.tID, t.tName
 ORDER BY u.uName, g.gtName;
+
 

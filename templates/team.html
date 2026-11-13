@@ -13,30 +13,43 @@
                             <Span class="profile-avatar">{{ currentTeam.tName | first }}</Span>
                             <h2>{{currentTeam.tName}}</h2>
                         </div>
-                        <p>Skill Level {{currentTeam.tSkillLevel}}</p>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <p>Most Recent Season: {{activeSeasons[0].sTitle}}</p>
+                            <span> | </span>
+                            <p>Game: {{game.gtName}} </p>
+                            <span> | </span>
+                            <p>Skill Level {{currentTeam.tSkillLevel}}</p>
+                        </div>
                 </div>
                 
-                <div class="uni-card-grid">
+                <div class="uni-card-grid" style="padding-top: 10px; padding-bottom: 10px; ">
                     
                     <div class="uni-card">
-                        <h3 class="uni-card-title">Active Lineup</h3>
-                        <h2 class="uni-card-title">Team Roster</h2>
-                        <line>_____________________________________________________</line>
-                        {% for player in players %}
-                        <a href="{{url_for('player', auID=player.auID)}}">
-                            <div class="uni-card">    
-                                <p class="uni-card-text">{{ player.gamerTag }}</p>
-                            </div>
-                        </a>
-                        {% else %}
-                            <p>No active players currently listed for this team.</p>
-                        {% endfor %}
+                        
+                            <p class="eyebrow">Team Members</p>
+                            <h2 class="uni-card-title" style="border-bottom: 1px solid var(--line);">Current and Former Players</h2>
+                                              
+                        <ul class="team-history-list">
+                            {% for player in players %}
+                                <li>
+                                    <a href="{{ url_for('player', auID=player.auID) }}">
+                                        <div class="uni-card team-history-item">
+                                            <span>{{ player.gamerTag }}</span>
+                                            <span class="status-badge status-{{ player.playerStatus|lower }}">
+                                                {{ player.playerStatus }}
+                                            </span>
+                                        </div>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li>No players listed for this team.</li>
+                            {% endfor %}
+                        </ul>
                     </div>
 
                     <div class="uni-card">
-                        <h3 class="uni-card-title">Team Schedule</h3>
-                        <h2 class="uni-card-title">Upcoming Matches</h2>
-                        <line>_____________________________________________________</line>
+                        <p class="eyebrow">Team Schedule</p>
+                        <h2 class="uni-card-title" style="border-bottom: 1px solid var(--line);"">Upcoming Matches</h2>
                         {% for event in teamSchedule %}
                             <div class="uni-card">
                                 <h3>{{event.tName}} vs. {{event.mOpponent}}</h3>
@@ -59,20 +72,43 @@
                 </div>
 
                 <div class="uni-card">
-                    <h3 class="uni-card-title">Team History</h3>
-                        <h2 class="uni-card-title">All Seasons</h2>
-                        <line>_____________________________________________________</line>
-                        {% for season in teamsSeasons %}
-                        <a href="{{ url_for('teamSeason', sID=season.sID) }}">
-                            <div class="uni-card">
-                                <p>{{season.sTitle}}</p>
-                            </div>
-                        </a>
-                        {%else%}
-                            <div class="uni-card">
-                                <p>No seasons recorded for this team yet...</p>
-                            </div>
-                        {% endfor %}
+                    <p class="eyebrow">Team History</p>
+                        <h2 class="uni-card-title" style="border-bottom: 1px solid var(--line);"">All Seasons</h2>
+                        <h3>Active Seasons</h3>
+                        <ul class="team-history-list">
+                            {% for season in activeSeasons %}
+                                <li>
+                                    <a href="{{ url_for('teamSeason', sID=season.sID) }}">
+                                        <div class="uni-card team-history-item">
+                                            <span>{{ season.sTitle }}</span>
+                                            <span class="status-badge status-{{ season.seasonStatus|lower }}">
+                                                {{ season.seasonStatus }}
+                                            </span>
+                                        </div>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li>No active seasons.</li>
+                            {% endfor %}
+                        </ul>
+
+                        <h3>Past Seasons</h3>
+                        <ul class="team-history-list">
+                            {% for season in formerSeasons %}
+                                <li>
+                                    <a href="{{ url_for('teamSeason', sID=season.sID) }}">
+                                        <div class="uni-card team-history-item">
+                                            <span>{{ season.sTitle }}</span>
+                                            <span class="status-badge status-{{ season.seasonStatus|lower }}">
+                                                {{ season.seasonStatus }}
+                                            </span>
+                                        </div>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li>No past seasons recorded.</li>
+                            {% endfor %}
+                        </ul>
 
                 </div>
             </section>
