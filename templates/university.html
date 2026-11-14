@@ -174,9 +174,19 @@
                                         {{ g.user.auEmail }}
                                     </p>
 
-                                    {% if currentRole and currentRole.staffMemberID %}
-                                        <div class="permission-badge">
-                                            ✓ University Staff
+                                    {% if currentRole %}
+                                        <div style="display: flex; gap: 5px"> 
+                                            {% if currentRole.teamMemberID %}
+                                                <div class="permission-badge">
+                                                    ✓ Team Member
+                                                </div>
+                                            {% endif %}
+                                        
+                                            {% if currentRole.staffMemberID %}
+                                                <div class="permission-badge">
+                                                    ✓ University Staff
+                                                </div>
+                                            {% endif %}
                                         </div>
                                         <p class="uni-card-text">
                                             {{ currentRole.staffRole }} at

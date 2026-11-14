@@ -1,0 +1,115 @@
+{% extends "university_profile_layout.html" %}
+
+{% block title %}Create Team{% endblock %}
+{% block profile_heading %}Create Team{% endblock %}
+
+{% block profile_content %}
+<section class="university-tab">
+    <div class="uni-card">
+        <p class="eyebrow">{{ currentUniversity.uName }}</p>
+        <h2 class="uni-card-title">New Team</h2>
+
+        <form method="POST" action="{{ url_for('createTeam', uID=currentUniversity.uID) }}">
+            <div class="uni-field-grid">
+                <label class="uni-field">
+                    <span>Team name</span>
+                    <input type="text" name="team_name" maxlength="100" required>
+                </label>
+
+                <label class="uni-field">
+                    <span>Skill level</span>
+                    <select name="skill_level" required>
+                        <option value="Varsity">Varsity</option>
+                        <option value="Junior Varsity">Junior Varsity</option>
+                        <option value="Academy">Academy</option>
+                    </select>
+                </label>
+
+                <label class="uni-field">
+                    <span>Game</span>
+                    <select name="game_id">
+                        <option value="">Select a game</option>
+                        {% for game in games|default([]) %}
+                            <option value="{{ game.gtID }}">{{ game.gtName }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <span>Or add a new game title <span style=color:var(--orange)>(Leave blank if using a existing game from above)</span> </span>
+                    <input type="text" name="new_game_title" maxlength="100"
+                        placeholder="Leave blank to use the selected game">
+                </label>
+
+                <label class="uni-field">
+                    
+                </label>
+
+                
+            </div>
+
+            <h3>First Season</h3>
+
+            <div class="uni-field-grid">
+                <label class="uni-field">
+                    <span>Season name</span>
+                    <Strong style="color: var(--orange); font: 1em;" id="season-name-hint"></Strong>
+                    <input id="season-title" type="text" name="season_title" list="season-titles"
+                        placeholder="Choose or type a season name" maxlength="100" required>
+                    <datalist id="season-titles">
+                        {% for season in seasonTitles %}
+                            <option value="{{ season.sTitle }}"></option>
+                        {% endfor %}
+                    </datalist>
+                </label>
+
+                <label class="uni-field">
+                    <span>Format</span>
+                    <input type="text" name="season_format" placeholder="3v3" maxlength="50">
+                </label>
+
+                <label class="uni-field">
+                    <span>Start date</span>
+                    <input type="date" name="start_date" required>
+                </label>
+
+                <label class="uni-field">
+                    <span>End date</span>
+                    <input type="date" name="end_date">
+                </label>
+
+                <label class="uni-field uni-field-full">
+                    <span>Description</span>
+                    <textarea name="season_description" rows="3"></textarea>
+                </label>
+            </div>
+
+            <div class="uni-tab-header" style="padding-top: 20px;">
+                <a class="button button-secondary"
+                   href="{{ url_for('university', uID=currentUniversity.uID) }}#teams">
+                    Cancel
+                </a>
+                <button class="button button-primary" type="submit">
+                    Create Team
+                </button>
+            </div>
+        </form>
+
+        <!--Script for letting users know if they are requsting to create a new season with the form-->
+        <script>
+            const seasonInput = document.getElementById("season-title");
+            const seasonHint = document.getElementById("season-name-hint");
+            const seasonNames = Array.from(
+                document.querySelectorAll("#season-titles option"),
+                option => option.value.trim().toLowerCase()
+            );
+
+            seasonInput.addEventListener("input", () => {
+                const name = seasonInput.value.trim().toLowerCase();
+
+                seasonHint.textContent = !name ? "" : seasonNames.includes(name)
+                    ? "Existing season name. A separate season will be created for this team."
+                    : "(New season name detected. A separate season will be created for this team!)";
+            });
+        </script>
+    </div>
+</section>
+{% endblock %}

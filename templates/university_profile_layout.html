@@ -56,6 +56,23 @@
             <!-- University Profile Top Bar-->
             <div class="university-topbar">
                 <h1 id="current-tab-name">{% block profile_heading %}Overview{% endblock %}</h1>
+
+                <!---->
+                {% set staffRole = g.userRoles
+                    | selectattr('uID', 'equalto', currentUniversity.uID)
+                    | selectattr('staffMemberID')
+                    | first %}
+
+                {% if g.user and staffRole %}
+                    <section id="team-management-tab-topbar" hidden>
+                        <a href="{{url_for('createTeam', uID = currentUniversity.uID)}}">
+                            <button class="button button-primary" type="button">
+                                Create Team
+                            </button>
+                        </a>
+                    </section>
+                    
+                {% endif %}
             </div>
 
             {% block profile_content %}{% endblock %}
@@ -76,6 +93,17 @@
             button => button.dataset.tab === selectedTab
         );
         if (!selectedButton) return;
+
+        const staffTopBars = [ 
+            [teamManagementTabTopbar = document.getElementById("team-management-tab-topbar") , "teams"],
+            [membersManagementTabTopbar = document.getElementById("members-management-tab-topbar"), "members"],
+            [updatesMangementTabTopbar = document.getElementById("updates-management-tab-topbar"), "updates"]
+        ]
+        for(const[topBar, tabName] of staffTopBars){
+            if (topBar) {
+                topBar.hidden = selectedTab !== tabName;
+            }
+        }
 
         tabPanels.forEach(panel => {
             panel.hidden = panel.id !== selectedTab;

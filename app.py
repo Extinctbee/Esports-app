@@ -2,6 +2,7 @@ from flask import Flask, abort, config, render_template, redirect, url_for, requ
 import os
 from werkzeug.security import check_password_hash
 from db import get_connection
+from datetime import date
 
 app = Flask(__name__)
 
@@ -331,6 +332,195 @@ def team(tID):
 
     return render_template("team.html", currentTeam=team, players=players, currentUniversity=teamUniversity, teamSchedule = teamSchedule, 
                            activeSeasons = activeSeasons, formerSeasons =formerSeasons, upcomingSeasons = upcomingSeasons, game = game)
+
+# Route for creating a new team
+@app.route("/university/<int:uID>/create_team", methods=["GET", "POST"])
+def createTeam(uID):
+    # Ensure User is logged in before access
+    if not g.user:
+        return redirect(url_for("login"))
+
+    # Check is user is Staff
+    isStaff = any(
+        role["uID"] == uID and role["staffMemberID"]
+        for role in g.userRoles
+    )
+    if not isStaff:
+        abort(403)
+
+    #Connect to DB to Verify University
+    connection = get_connection()
+    try:
+        with connection.cursor() as cursor:
+            #Fetch associated university
+            cursor.execute("SELECT * FROM University WHERE uID = %s", (uID,))
+            university = cursor.fetchone()
+
+            #Fetch all current game titles
+            cursor.execute("SELECT gtID, gtName FROM GameTitle ORDER BY gtName")
+            games = cursor.fetchall()
+
+            #Fetch all active season titles for the university
+            cursor.execute("SELECT DISTINCT sTitle FROM TeamSeason ORDER BY sTitle")
+            seasonTitles = cursor.fetchall()
+            
+            
+                    
+    finally:
+        connection.close()
+    #Validate university
+    if university is None:
+        abort(404)
+
+    # Handle Form submission if POST request
+    if request.method == "POST":
+        
+        try:
+            teamData = validate_team_form(request.form)
+        except ValueError as error:
+            abort(400, description=str(error))
+
+        connection = get_connection()
+        try:
+            with connection.cursor() as cursor:
+
+                #Verify team name doesnt already exist
+                cursor.execute("""
+                    SELECT tID
+                    FROM Team
+                    WHERE uID = %s AND tName = %s
+                    LIMIT 1
+                """, (uID, teamData["teamName"]))
+
+                if cursor.fetchone() is not None:
+                    abort(400, description="A team with this name already exists at this university.")
+
+                gameID = teamData["gameID"]
+
+                if teamData["newGameTitle"]:
+                    # Create the title or reuse an existing matching title.
+                    cursor.execute("""
+                        INSERT INTO GameTitle (gtName)
+                        VALUES (%s)
+                        ON DUPLICATE KEY UPDATE gtID = LAST_INSERT_ID(gtID)
+                    """, (teamData["newGameTitle"],))
+                    gameID = cursor.lastrowid
+                else:
+                    # Verify the selected game exists.
+                    cursor.execute(
+                        "SELECT gtID FROM GameTitle WHERE gtID = %s",
+                        (gameID,)
+                    )
+                    if cursor.fetchone() is None:
+                        abort(400, description="Selected game does not exist.")
+
+                # Insert the new team.
+                cursor.execute("""
+                    INSERT INTO Team (uID, gtID, tName, tSkillLevel)
+                    VALUES (%s, %s, %s, %s)
+                """, (
+                    uID,
+                    gameID,
+                    teamData["teamName"],
+                    teamData["skillLevel"]
+                ))
+                teamID = cursor.lastrowid
+
+                # Insert this team's first season.
+                cursor.execute("""
+                    INSERT INTO TeamSeason (
+                        tID, sTitle, sFormat,
+                        sStartDate, sEndDate, sDescription
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (
+                    teamID,
+                    teamData["seasonTitle"],
+                    teamData["seasonFormat"],
+                    teamData["startDate"],
+                    teamData["endDate"],
+                    teamData["seasonDescription"]
+                ))
+
+            connection.commit()
+
+        except Exception:
+            connection.rollback()
+            raise
+
+        finally:
+            connection.close()
+
+        return redirect(url_for("team", tID=teamID))
+
+    
+    return render_template("create_team.html", currentUniversity=university, games = games, seasonTitles = seasonTitles)
+
+def validate_team_form(form):
+    #Collect team information
+        teamName = form.get("team_name", "").strip()
+        gameValue = form.get("game_id", type=int)
+        newGameTitle = form.get("new_game_title", "").strip()
+        skillLevel = form.get("skill_level", "").strip()
+    
+        # Collect first-season information
+        seasonTitle = form.get("season_title", "").strip()
+        seasonFormat = form.get("season_format", "").strip() or None
+        startDate = form.get("start_date", "").strip()
+        endDate = form.get("end_date", "").strip() or None
+        seasonDescription = form.get("season_description", "").strip() or None
+       
+        # Validate required fields
+        if not teamName or not seasonTitle or not startDate:
+            raise ValueError("Team name, season name, and start date are required.")
+
+        if skillLevel not in ("Varsity", "Junior Varsity", "Academy"):
+            raise ValueError("Invalid skill level.")
+
+        # Require exactly one game option
+        if bool(gameValue) == bool(newGameTitle):
+            raise ValueError("Select an existing game or enter a new title, not both.")
+
+        gameID = None
+        if gameValue:
+            try:
+                gameID = int(gameValue)
+            except ValueError:
+                raise ValueError("Invalid game selection.")
+
+            if gameID <= 0:
+                raise ValueError("Invalid game selection.")
+
+        # Validate field lengths
+        if (
+            len(teamName) > 100
+            or len(newGameTitle) > 100
+            or len(seasonTitle) > 100
+            or (seasonFormat and len(seasonFormat) > 50)
+        ):
+            raise ValueError("One or more fields exceed the allowed length.")
+
+        # Parse and validate dates
+        try:
+            startDate = date.fromisoformat(startDate)
+            endDate = date.fromisoformat(endDate) if endDate else None
+        except ValueError:
+            raise ValueError("Enter valid season dates.")
+
+        if endDate and endDate < startDate:
+            raise ValueError("End date cannot be before the start date.")
+
+        return {
+            "teamName": teamName,
+            "gameID": gameID,
+            "newGameTitle": newGameTitle,
+            "skillLevel": skillLevel,
+            "seasonTitle": seasonTitle,
+            "seasonFormat": seasonFormat,
+            "startDate": startDate,
+            "endDate": endDate,
+            "seasonDescription": seasonDescription
+        }
 
 # Route for a specific team's season page
 @app.route("/team/season/<int:sID>")
