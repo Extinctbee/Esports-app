@@ -1,6 +1,6 @@
 from flask import Flask, abort, config, render_template, redirect, url_for, request, g, session
 import os
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from db import get_connection
 from datetime import date
 
@@ -662,22 +662,26 @@ def logout():
 def join():
 
     if request.method == "POST":
+        #Gather join request form details.
         firstName = request.form.get("first_name", "").strip()
         lastName = request.form.get("last_name", "").strip()
         email = request.form.get("email", "").strip()
-        password = request.form.get("password_request", "").strip()
-
+        password = request.form.get("password_required", "").strip()
         universityName = request.form.get("university_name", "").strip()
         universityState = request.form.get("university_state", "").strip()
         universityCity = request.form.get("university_city", "").strip()
 
         # Basic server-side validation.
+        if len(password) < 8:
+            abort(400, description= ("Password must containt at least 8 characters. %s", password))
+        passwordHash = generate_password_hash(password)
+
         if not all((firstName, lastName, email,
                     universityName, universityState, universityCity)):
             abort(400, "All fields are required.")
 
+        #Connect to DB to insert request
         connection = get_connection()
-
         try:
             with connection.cursor() as cursor:
                 cursor.execute("""
@@ -695,7 +699,7 @@ def join():
                     firstName,
                     lastName,
                     email,
-                    password,
+                    passwordHash,
                     universityName,
                     universityState,
                     universityCity
@@ -718,7 +722,7 @@ def join():
 @app.route("/demo/verify-university-requests", methods=["POST"])
 def force_verify_requests():
 
-    # Never expose this action to regular website visitors.
+    # DEMO MODE ONLY! Abort request if not in demo mode.
     if (not app.config.get("DEMO_MODE")
             or request.remote_addr not in ("127.0.0.1", "::1")):
         abort(403)
@@ -730,13 +734,14 @@ def force_verify_requests():
 
             # Find requests awaiting approval.
             cursor.execute("""
-                SELECT uarID, uarUniversityName, uarState, uarCity
+                SELECT uarID, uarUniversityName, uarState, uarCity, uarFirstName, uarLastName, uarEmail, uarHashPass
                 FROM UniversityProfileAccountRequest
                 WHERE uarStatus = 'Pending'
                 FOR UPDATE
             """)
             pendingRequests = cursor.fetchall()
 
+            #For every university in pending requst, create a new university and associated account user marked as staff
             for universityRequest in pendingRequests:
 
                 # Generate a university profile if it doesn't already exist.
@@ -749,14 +754,51 @@ def force_verify_requests():
                     universityRequest["uarState"],
                     universityRequest["uarCity"]
                 ))
+                universityID = cursor.lastrowid
 
-                # Mark the request as processed.
+                # Reject existing account emails rather than changing their
+                # password or granting them staff access automatically.
+                cursor.execute(
+                    "SELECT auID FROM AccountUser WHERE auEmail = %s",
+                    (universityRequest["uarEmail"],)
+                )
+                if cursor.fetchone() is not None:
+                    abort(409, description="A request uses an existing account email; review it separately.")
+
+                # Copy the stored password hash without hashing it again.
+                cursor.execute("""
+                    INSERT INTO AccountUser (
+                        auFirstName, auLastName, auEmail, auHashPass
+                    )
+                    VALUES (%s, %s, %s, %s)
+                """, (
+                    universityRequest["uarFirstName"],
+                    universityRequest["uarLastName"],
+                    universityRequest["uarEmail"],
+                    universityRequest["uarHashPass"]
+                ))
+                accountID = cursor.lastrowid
+
+                # Identify this account as staff.
+                cursor.execute("""
+                    INSERT INTO StaffMember (auID)
+                    VALUES (%s)
+                """, (accountID,))
+
+                # Associate the staff account with its university.
+                cursor.execute("""
+                    INSERT INTO StaffUniversityMembership (auID, uID, staffRole)
+                    VALUES (%s, %s, %s)
+                """, (accountID, universityID, "Esports Coordinator"))
+
+                # Mark the univesity profile request as Approved.
                 cursor.execute("""
                     UPDATE UniversityProfileAccountRequest
                     SET uarStatus = 'Approved'
                     WHERE uarID = %s
                 """, (universityRequest["uarID"],))
 
+        #Save Changes After all requests have been processed
         connection.commit()
 
     except Exception:
