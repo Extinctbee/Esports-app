@@ -123,7 +123,7 @@ a { color: inherit; }
 .university-profile h2 { font: 800 clamp(30px, 4vw, 44px)/1 "Barlow Condensed"; text-transform: uppercase; margin: 0 0 18px; }
 .university-profile h3 { font: 700 18px "Barlow Condensed"; color: #b8b7b2; margin: 6px 0; }
 .university-profile .uni-card-title { font: 700 22px/1.2 "Barlow Condensed", sans-serif; text-transform: none; margin: 0 0 12px; }
-.university-profile-content { background-color: #EAE8E2 ; color: #141413; min-width: 0; padding: none; }
+.university-profile-content { background-color: #EAE8E2 ; color: #cdcd3f; min-width: 0; padding: none; }
 .university-profile-content h2, .university-profile-content h3 { color: #141413; }
 #create-team-button[hidden] { display: none; }
 .university-topbar { background: white; padding: 16px 24px;display: flex; align-items: center; justify-content: space-between; gap: 16px; }
@@ -234,4 +234,63 @@ a { color: inherit; }
 }
 @media (max-width: 520px) {
   .uni-field-grid { grid-template-columns: 1fr; }
+}
+/* ===== Featured Match Hero Banner ===== */
+.match-hero-banner {
+  position: relative;
+  width: 100%;
+  min-height: 300px;
+  border-radius: 14px;
+  background-size: cover;
+  background-position: center right;
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.match-hero-overlay {
+  width: 100%;
+  min-height: 300px;
+  padding: 36px 40px;
+  display: flex;
+  align-items: center;
+  /* Dark fade on the left for text legibility, transparent on the right to show the image */
+  background: linear-gradient(
+    90deg,
+    rgba(222, 77, 14, 0.94) 0%,
+    rgba(222, 20, 19, 0.78) 52%,
+    rgba(20, 200, 19, 0.25) 100%
+  );
+}
+
+.match-hero-content {
+  max-width: 520px;
+  color: var(--white);
+}
+
+.match-live-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--orange-soft);
+  margin-bottom: 10px;
+}
+
+.match-hero-title {
+  font-size: 2.4rem;
+  font-weight: 900;
+  line-height: 1.05;
+  margin: 0 0 14px 0;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.match-hero-meta {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #d7d4cd;
+  margin: 0 0 22px 0;
 }
