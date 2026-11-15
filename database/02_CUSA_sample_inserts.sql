@@ -7,17 +7,17 @@ USE EsportsManagementDB;
 START TRANSACTION;
 
 -- Universities: existing uName values are left unchanged.
-INSERT INTO University (uName, uState, uCity, uLogoURL) VALUES
-  ('University of Delaware', 'Delaware', 'Newark', 'img/university-logo/UD.png'), -- DEL
-  ('Florida International University', 'Florida', 'Miami', 'img/university-logo/FIU.png'), -- FIU
-  ('Jacksonville State University', 'Alabama', 'Jacksonville', 'img/university-logo/JSU.png'), -- JSU
-  ('Kennesaw State University', 'Georgia', 'Kennesaw', 'img/university-logo/KSU.png'), -- KSU
-  ('Liberty University', 'Virginia', 'Lynchburg', 'img/university-logo/LU.png'), -- LIB
-  ('Middle Tennessee State University', 'Tennessee', 'Murfreesboro', 'img/university-logo/MTSU.png'), -- MTSU
-  ('Missouri State University', 'Missouri', 'Springfield', 'img/university-logo/MSU.png'), -- MSU
-  ('New Mexico State University', 'New Mexico', 'Las Cruces', 'img/university-logo/NMSU.png'), -- NMSU
-  ('Sam Houston State University', 'Texas', 'Huntsville', 'img/university-logo/SHSU.png'), -- SHSU
-  ('Western Kentucky University', 'Kentucky', 'Bowling Green', 'img/university-logo/WKU.png') -- WKU
+INSERT INTO University (uName, uState, uCity, uLogoURL ,primaryColor , secondaryColor) VALUES
+  ('University of Delaware', 'Delaware', 'Newark', 'img/university-logo/UD.png', '#002D72', '#FFC600'), -- DEL
+  ('Florida International University', 'Florida', 'Miami', 'img/university-logo/FIU.png', '#081E3F' , ' #D1A644'), -- FIU
+  ('Jacksonville State University', 'Alabama', 'Jacksonville', 'img/university-logo/JSU.png' ,'#A50034' , '#FFFFFF'), -- JSU
+  ('Kennesaw State University', 'Georgia', 'Kennesaw', 'img/university-logo/KSU.png' , '#AFA300' , '#000000'), -- KSU
+  ('Liberty University', 'Virginia', 'Lynchburg', 'img/university-logo/LU.png', '#0A254E ' , '#B72025'), -- LIB
+  ('Middle Tennessee State University', 'Tennessee', 'Murfreesboro', 'img/university-logo/MTSU.png', '#0066CC' , ' #000000'), -- MTSU
+  ('Missouri State University', 'Missouri', 'Springfield', 'img/university-logo/MSU.png', '#A50034' , '#FFFFFF'), -- MSU
+  ('New Mexico State University', 'New Mexico', 'Las Cruces', 'img/university-logo/NMSU.png' , '#A50034' , '#A7A8AA'), -- NMSU
+  ('Sam Houston State University', 'Texas', 'Huntsville', 'img/university-logo/SHSU.png' , '#F56423' , '#FFFFFF'), -- SHSU
+  ('Western Kentucky University', 'Kentucky', 'Bowling Green', 'img/university-logo/WKU.png' , ' #A50034', '#000000') -- WKU
 ON DUPLICATE KEY UPDATE uID = uID;
 
 -- Two shared game titles, reused if they already exist.
