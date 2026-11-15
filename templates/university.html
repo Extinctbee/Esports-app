@@ -7,8 +7,21 @@
 {% block profile_content %}
 
             <!-- University Overview Section-->
-            <section id="overview" class="university-tab">
+             <section id="overview" class="university-tab">
+                <!-- Featured Match Hero Banner -->
+                <div class="match-hero-banner" style="background-image: url('{{ url_for('static', filename='Hero.jpg') }}');">
+                    <div class="match-hero-overlay">
+                    <div class="match-hero-content">
+                        <span class="match-live-badge">● LIVE THIS FRIDAY</span>
+                        <h2 class="match-hero-title">BEARKATS VS.<br>LUMBERJACKS</h2>
+                        <p class="match-hero-meta">OCT 24 · 7:00 PM &nbsp;&nbsp; VALORANT · BO3</p>
+                        <a href="#schedule" class="button button-primary">View match details &rsaquo;</a>
+                    </div>
+                    </div>
+                </div>
+               <div class="Next-Match-Panel">
 
+               </div>
                 <div class="uni-card-grid">
                     <div class="uni-card">
                         <h3 class="uni-card-title">State</h3>
@@ -29,7 +42,7 @@
 
                     <div class="uni-card">
                         <h3 class="uni-card-title">Upcoming Matches</h3>
-                        <p class="uni-card-text">Coming soon!</p>
+                        <p class="uni-card-text">Coming soon ! </p>
                     </div>
                     <div class="uni-card">
                         <h3 class="uni-card-title">Our Teams</h3>

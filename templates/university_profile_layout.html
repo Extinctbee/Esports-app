@@ -20,7 +20,7 @@
             </div>
             
         </div>
-
+    
         <ul>
             <li><button type="button" data-tab="overview">Overview</button></li>
             <li><button type="button" data-tab="schedule">Schedule</button></li>
@@ -56,7 +56,7 @@
             <!-- University Profile Top Bar-->
             <div class="university-topbar">
                 <h1 id="current-tab-name">{% block profile_heading %}Overview{% endblock %}</h1>
-
+                
                 <!---->
                 {% set staffRole = g.userRoles
                     | selectattr('uID', 'equalto', currentUniversity.uID)
