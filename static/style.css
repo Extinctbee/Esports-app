@@ -123,8 +123,9 @@ a { color: inherit; }
 .university-profile h2 { font: 800 clamp(30px, 4vw, 44px)/1 "Barlow Condensed"; text-transform: uppercase; margin: 0 0 18px; }
 .university-profile h3 { font: 700 18px "Barlow Condensed"; color: #b8b7b2; margin: 6px 0; }
 .university-profile .uni-card-title { font: 700 22px/1.2 "Barlow Condensed", sans-serif; text-transform: none; margin: 0 0 12px; }
-.university-profile-content { background-color: #EAE8E2 ; color: #cdcd3f; min-width: 0; padding: none; }
+.university-profile-content { background-color: #EAE8E2 ; color: var(--ink); min-width: 0; padding: none; }
 .university-profile-content h2, .university-profile-content h3 { color: #141413; }
+.university-profile-content .match-hero-title { color: var(--white); }
 #create-team-button[hidden] { display: none; }
 .university-topbar { background: white; padding: 16px 24px;display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .university-topbar h1 { margin: 0; }
@@ -200,8 +201,6 @@ a { color: inherit; }
   .uni-card-grid { grid-template-columns: 1fr; }
 }
 
-
-
    /* Header row: title on the left, Save button on the right */
 .uni-tab-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .uni-tab-header .eyebrow { margin-bottom: 8px; }
@@ -246,6 +245,7 @@ a { color: inherit; }
   overflow: hidden;
   margin-bottom: 24px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  background-image: url("Hero.jpg");
 }
 
 .match-hero-overlay {
